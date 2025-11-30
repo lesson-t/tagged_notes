@@ -1,7 +1,7 @@
 class Note {
   final int id;       // 一意ID
   final String title; // タイトル（必須）
-  final String? body; // 本文
+  final String body; // 本文
   final String tag;   // ”仕事”/”プライベート”/”その他”
   final DateTime createdAt; // 作成日時
   bool isPinned;      // ピン留め
