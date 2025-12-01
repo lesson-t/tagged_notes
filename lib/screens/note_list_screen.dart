@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/screens/note_edit_screen.dart';
 
 class NoteListScreen extends StatelessWidget {
   const NoteListScreen({super.key});
@@ -61,8 +62,12 @@ class NoteListScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // ダミー
-          provider.addNote('新規メモ', '本文です', '仕事');
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (_) => const NoteEditScreen(),
+            )
+          );
         } ,
         child: const Icon(Icons.add),
 
