@@ -34,6 +34,14 @@ class NoteListScreen extends StatelessWidget {
                 provider.togglePin(note.id);
               },
             ),
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (_) => NoteEditScreen(note: note),
+                )
+              );
+            },
             // 長押しで削除
             onLongPress: () {
               showDialog(
