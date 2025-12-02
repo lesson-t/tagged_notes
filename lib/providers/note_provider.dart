@@ -40,4 +40,16 @@ class NoteProvider with ChangeNotifier {
     note.togglePin();
     notifyListeners();
   }
+
+  // ノートの更新（idで指定）
+  void updateNote(int id, String title, String body, String tag) {
+    final note = _notes.firstWhere(
+      (n) => n.id == id, 
+      orElse: () => throw Exception("Note not found: id=$id")
+    );
+    
+    note.update(title: title, body: body, tag: tag);
+
+    notifyListeners();
+  }
 }
