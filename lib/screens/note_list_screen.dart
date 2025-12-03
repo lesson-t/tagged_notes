@@ -15,8 +15,51 @@ class _NoteListScreenState extends State<NoteListScreen> {
   // タグフィルタ用の状態（初期値は すべて ）
   String _selectedTag = 'すべて';
 
+  // 検索用キーワード　空文字なら検索なし
+  String _searchQuery = '';
+
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
+
+  // 
+  Future<void> _openSearchDialog() async {
+    final controller = TextEditingController(text: _searchQuery);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('検索キーワード'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'タイトルや本文を検索',
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // キャンセル 
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, controller.text.trim());
+              }, 
+              child: const Text('検索')
+            ),
+          ],
+        );
+      }
+    );
+
+    // result が null　ならキャンセル
+    if (result == null) return;
+
+    setState(() {
+      _searchQuery = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +67,30 @@ class _NoteListScreenState extends State<NoteListScreen> {
     final notes = provider.notes;
 
     // タグに応じて絞り込んだリスト
-    final filteredNotes = _selectedTag == 'すべて' 
+    final filteredByTag = _selectedTag == 'すべて' 
       ? notes 
       : notes.where((n) => n.tag == _selectedTag).toList();
 
+    // 検索キーワードでさらに絞り込む
+    final filteredNotes = _searchQuery.isEmpty
+      ? filteredByTag
+      : filteredByTag.where((note) {
+        final q = _searchQuery.toLowerCase();
+        final title = note.title.toLowerCase();
+        final body = note.body.toLowerCase();
+        return title.contains(q) || body.contains(q);
+      }).toList();
+
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Tagged Notes")
+        title: const Text("Tagged Notes"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: _openSearchDialog, 
+          )
+        ],
       ),
       body: Column(
         children: [
