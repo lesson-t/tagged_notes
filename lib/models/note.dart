@@ -9,6 +9,7 @@ class Note {
   // ID採番用カウンター（アプリ内で共有）
   static int _counter = 0;
 
+  // コンストラクタ
   Note({
     required this.title,
     this.body = "",
@@ -16,6 +17,46 @@ class Note {
   }) : id = _counter++,
        createdAt = DateTime.now(),
        isPinned = false;
+  
+  // 永続化用の内部コンストラクタ
+  Note._internal({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.tag,
+    required this.createdAt,
+    required this.isPinned,
+  });
+
+  // 保存用 :Map に変換
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'body': body,
+      'tag': tag,
+      'createdAt': createdAt.toIso8601String(), // 文字列にする
+      'isPinned': isPinned,
+    };
+  }
+
+  // 読込用 :Map から復元
+  factory Note.fromMap(Map<String, dynamic> map) {
+    final note = Note._internal(
+      id: map['id'] as int, 
+      title: map['title'] as String, 
+      body: map['body'] as String, 
+      tag: map['tag'] as String, 
+      createdAt: DateTime.parse(map['createdAt'] as String), 
+      isPinned: map['isPinned'] as bool,
+    );
+
+    if (note.id >= _counter) {
+      _counter = note.id +1;
+    }
+
+    return note;
+  }
 
   // ピンの切り替え（true ⇔ false）
   void togglePin() {
