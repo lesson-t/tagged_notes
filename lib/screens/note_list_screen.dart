@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
+import 'package:tagged_notes/widgets/note_list_item.dart';
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -128,28 +129,16 @@ class _NoteListScreenState extends State<NoteListScreen> {
               itemBuilder: (context, index) {
                 final note = filteredNotes[index];
 
-                return ListTile(
-                  title: Text(note.title),
-                  subtitle: Text(
-                    note.body.isEmpty ? '' : note.body.split('\n').first,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
-                    onPressed: () {
-                      provider.togglePin(note.id);
-                    },
-                  ),
+                return NoteListItem(
+                  note: note, 
                   onTap: () {
                     Navigator.push(
                       context, 
                       MaterialPageRoute(
                         builder: (_) => NoteEditScreen(note: note),
-                      )
+                      ),
                     );
-                  },
-                  // 長押しで削除
+                  }, 
                   onLongPress: () {
                     showDialog(
                       context: context, 
@@ -171,6 +160,9 @@ class _NoteListScreenState extends State<NoteListScreen> {
                         ],
                       )
                     );
+                  },
+                  onTogglePin: () {
+                    provider.togglePin(note.id);
                   },
                 );
               },
