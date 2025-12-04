@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
@@ -112,7 +113,9 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
           // フィルタ済みのリスト表示
           Expanded(
-            child: ListView.builder(
+            child: filteredNotes.isEmpty
+              ? _buildEmptyState(notes)
+              : ListView.builder(
               itemCount: filteredNotes.length,
               itemBuilder: (context, index) {
                 final note = filteredNotes[index];
@@ -168,6 +171,25 @@ class _NoteListScreenState extends State<NoteListScreen> {
           );
         } ,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(List<Note> allNotes) {
+    // 1件もメモがない場合
+    if (allNotes.isEmpty) {
+      return const Center(
+        child: Text(
+          'まだメモがありません。\n右下の「＋」から作成できます。'
+        )
+      );
+    }
+
+    // メモはあるが、絞り込み条件で0件になっている場合
+    return const Center(
+      child: Text(
+        '条件に一致するメモがありません。',
+        textAlign: TextAlign.center,
       ),
     );
   }
