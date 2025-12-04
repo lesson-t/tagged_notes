@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
+import 'package:tagged_notes/widgets/tag_filter_chips.dart';
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -97,27 +98,14 @@ class _NoteListScreenState extends State<NoteListScreen> {
         children: [
           const SizedBox(height: 8),
 
-          // タグフィルタのチップ行
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: _tags.map((tag) {
-                final isSelected = _selectedTag == tag;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(tag), 
-                    selected: isSelected,
-                    onSelected: (_) {
-                      setState(() {
-                        _selectedTag = tag;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
+          TagFilterChips(
+            tags: _tags, 
+            selectedTag: _searchQuery, 
+            onTagSelected: (tag) {
+              setState(() {
+                _selectedTag = tag;
+              });
+            },
           ),
 
           const Divider(height: 1),
