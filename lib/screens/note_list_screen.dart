@@ -16,7 +16,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
   String _selectedTag = 'すべて';
 
   // 検索用キーワード　空文字なら検索なし
-  String _searchQuery = '';
+  String _searchQuery = "";
 
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
