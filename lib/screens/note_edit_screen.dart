@@ -4,8 +4,8 @@ import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 
 class NoteEditScreen extends StatefulWidget {
-  final Note? note; // ★ 新規 or 編集を判別するための Note
-  
+  final Note? note;  // あるときは編集、nullのときは新規
+
   const NoteEditScreen({super.key, this.note});
 
   @override
@@ -19,13 +19,18 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   // 初期タグ【仕事】
   String _selectedTag = '仕事';
 
+  // 編集モードかどうか
+  late final bool _isEditing;
+
   @override
   void initState() {
     super.initState();
 
-    // ★ 編集モードの場合は初期値を反映
     final note = widget.note;
+    _isEditing = note != null; // noteがあれば編集モード
+
     if (note != null) {
+      // 
       _titleController.text = note.title;
       _bodyController.text = note.body;
       _selectedTag = note.tag;
@@ -51,19 +56,15 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       return;
     }
 
+    // Provider から追加処理を呼ぶ
     final provider = context.read<NoteProvider>();
 
-    if (widget.note == null) {
-      // 新規作成
-      provider.addNote(title, body, tag);
+    if (_isEditing) {
+      // 既存メモの更新
+      provider.updateNote(widget.note!.id, title, body, tag);
     } else {
-      // 編集
-      provider.updateNote(
-        widget.note!.id, 
-        title, 
-        body, 
-        tag
-      );
+      // 新規メモの追加
+      provider.addNote(title, body, tag);
     }
 
     // 一覧画面に戻る
@@ -74,7 +75,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.note == null ? '新規メモ' : 'メモを編集'),
+        title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

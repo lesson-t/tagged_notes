@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
+import 'package:tagged_notes/widgets/note_list_item.dart';
+import 'package:tagged_notes/widgets/tag_filter_chips.dart';
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -16,7 +18,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
   String _selectedTag = 'すべて';
 
   // 検索用キーワード　空文字なら検索なし
-  String _searchQuery = '';
+  String _searchQuery = "";
 
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
@@ -96,27 +98,14 @@ class _NoteListScreenState extends State<NoteListScreen> {
         children: [
           const SizedBox(height: 8),
 
-          // タグフィルタのチップ行
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: _tags.map((tag) {
-                final isSelected = _selectedTag == tag;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(tag), 
-                    selected: isSelected,
-                    onSelected: (_) {
-                      setState(() {
-                        _selectedTag = tag;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
+          TagFilterChips(
+            tags: _tags, 
+            selectedTag: _searchQuery, 
+            onTagSelected: (tag) {
+              setState(() {
+                _selectedTag = tag;
+              });
+            },
           ),
 
           const Divider(height: 1),
@@ -128,28 +117,16 @@ class _NoteListScreenState extends State<NoteListScreen> {
               itemBuilder: (context, index) {
                 final note = filteredNotes[index];
 
-                return ListTile(
-                  title: Text(note.title),
-                  subtitle: Text(
-                    note.body.isEmpty ? '' : note.body.split('\n').first,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
-                    onPressed: () {
-                      provider.togglePin(note.id);
-                    },
-                  ),
+                return NoteListItem(
+                  note: note, 
                   onTap: () {
                     Navigator.push(
                       context, 
                       MaterialPageRoute(
                         builder: (_) => NoteEditScreen(note: note),
-                      )
+                      ),
                     );
-                  },
-                  // 長押しで削除
+                  }, 
                   onLongPress: () {
                     showDialog(
                       context: context, 
@@ -171,6 +148,9 @@ class _NoteListScreenState extends State<NoteListScreen> {
                         ],
                       )
                     );
+                  },
+                  onTogglePin: () {
+                    provider.togglePin(note.id);
                   },
                 );
               },
