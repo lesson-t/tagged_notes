@@ -44,7 +44,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     super.dispose();
   }
 
-  void _seveNote() {
+  void _saveNote() {
     final title = _titleController.text.trim();
     final body = _bodyController.text.trim();
     final tag = _selectedTag;
@@ -78,8 +78,8 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _seveNote, 
+            icon: const Icon(Icons.save),
+            onPressed: _saveNote, 
           ),
         ],
       ),
