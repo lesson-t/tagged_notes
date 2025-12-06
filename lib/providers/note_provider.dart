@@ -23,6 +23,9 @@ class NoteProvider with ChangeNotifier {
 
   // 追加
   Future<void> addNote(String title, String body, String tag) async {
+    final trimmedTitle = title.trim();
+    if (trimmedTitle.isEmpty) return;
+    
     _notes.add(
       Note(
         title: title,
