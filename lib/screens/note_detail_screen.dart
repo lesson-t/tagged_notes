@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
+import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 
 class NoteDetailScreen extends StatelessWidget {
-  final Note note;
+   // final Note note;
+   final int noteId;
 
 const NoteDetailScreen({
   super.key,
-  required this.note,
+  required this.noteId,
 });
 
 String _formatDate(DateTime dateTime) {
@@ -18,6 +21,11 @@ String _formatDate(DateTime dateTime) {
 
 @override
 Widget build(BuildContext context) {
+  final provider = context.watch<NoteProvider>();
+  final Note note = provider.notes.firstWhere(
+    (n) => n.id == noteId,
+    orElse: () => throw Exception('Note not found: id=$noteId') 
+  );
   final createdAtText = _formatDate(note.createdAt);
 
   return Scaffold(
