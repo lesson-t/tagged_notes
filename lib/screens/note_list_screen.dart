@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/screens/note_detail_screen.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
 import 'package:tagged_notes/widgets/tag_filter_chips.dart';
@@ -126,7 +127,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
                     Navigator.push(
                       context, 
                       MaterialPageRoute(
-                        builder: (_) => NoteEditScreen(note: note),
+                        builder: (_) => NoteDetailScreen(noteId: note.id),
                       ),
                     );
                   }, 
