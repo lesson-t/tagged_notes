@@ -17,20 +17,24 @@ class NoteListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(note.title),
-      subtitle: Text(
-        note.body.isEmpty ? '' : note.body.split('\n').first,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 1,
+      child: ListTile(
+        title: Text(note.title),
+        subtitle: Text(
+          note.body.isEmpty ? '' : note.body.split('\n').first,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: IconButton(
+          icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+          onPressed: onTogglePin,
+        ),
+        onTap: onTap,
+        // 長押しで削除
+        onLongPress: onLongPress,
       ),
-      trailing: IconButton(
-        icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
-        onPressed: onTogglePin,
-      ),
-      onTap: onTap,
-      // 長押しで削除
-      onLongPress: onLongPress,
     );
   }
 
