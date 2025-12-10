@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
@@ -24,6 +23,15 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
+
+  @override
+  void initState() {
+    super.initState();
+    // 
+    Future.microtask(() {
+      context.read<NoteProvider>().init();
+    });
+  }
 
   // 
   Future<void> _openSearchDialog() async {
