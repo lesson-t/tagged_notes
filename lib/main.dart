@@ -16,9 +16,46 @@ class MyApp extends StatelessWidget {
       create: (_) => NoteProvider(),
       child: MaterialApp(
         title: 'Tagged Notes',
+
+        // ライトテーマ
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+          appBarTheme: const AppBarTheme(
+            centerTitle: false,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         ),
+
+        // ダークテーマ
+        darkTheme: ThemeData(
+          useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.dark,
+          ),
+          appBarTheme: const AppBarTheme(
+            centerTitle: false,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+
+        // 端末の設定（ライト/ダーク）に追従
+        themeMode: ThemeMode.system,
+
         home: const NoteListScreen(),
       ),
     );
