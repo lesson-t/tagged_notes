@@ -44,7 +44,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     super.dispose();
   }
 
-  void _saveNote() {
+  Future<void> _saveNote() async {
     final title = _titleController.text.trim();
     final body = _bodyController.text.trim();
     final tag = _selectedTag;
@@ -61,11 +61,14 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
     if (_isEditing) {
       // 既存メモの更新
-      provider.updateNote(widget.note!.id, title, body, tag);
+      await provider.updateNote(widget.note!.id, title, body, tag);
     } else {
       // 新規メモの追加
-      provider.addNote(title, body, tag);
+      await provider.addNote(title, body, tag);
     }
+
+    // 保存が完了しなかった場合
+    if (!mounted) return;
 
     // 一覧画面に戻る
     Navigator.pop(context);
@@ -73,6 +76,8 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
@@ -91,17 +96,20 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'タイトル'
+                labelText: 'タイトル',
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
+
             // 本文
             Expanded(
               child: TextField(
                 controller: _bodyController,
                 decoration: const InputDecoration(
                   labelText: '本文',
-                  alignLabelWithHint: true
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(),
                 ),
                 maxLines: null,
                 expands: true,
@@ -109,6 +117,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
             // タグ選択
             Row(
               children: [
