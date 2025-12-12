@@ -51,7 +51,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('タイトルを入力ください'))
+        const SnackBar(content: Text('タイトルを入力してください'))
       );
       return;
     }
@@ -67,7 +67,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       await provider.addNote(title, body, tag);
     }
 
-    // 保存が完了しなかった場合
+    // 非同期中に画面が破棄されていたら何もしない
     if (!mounted) return;
 
     // 一覧画面に戻る
@@ -85,6 +85,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _saveNote, 
+            tooltip: '保存',
           ),
         ],
       ),
