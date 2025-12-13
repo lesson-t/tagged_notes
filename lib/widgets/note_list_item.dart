@@ -22,93 +22,91 @@ class NoteListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final preview = note.body.isEmpty ? '（本文なし）' :note.body.split('\n').first;
     final createdAtText = _formatDate(note.createdAt);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      // elevation: 1,
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1行目：タイトル＋ピンアイコン
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
+              // 左：情報ブロック
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1段目：タイトル（主）
+                    Text(
                       note.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    iconSize: 20,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: Icon(
-                      note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                    const SizedBox(height: 6),
+
+                    // 2段目：本文プレビュー（福）
+                    Text(
+                      preview,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                    onPressed: onTogglePin,
-                  )
-                ],
+                    const SizedBox(height: 10),
+                
+                    // 3段目：タグChip ＋ 日時（メタ）
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        Chip(
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          label: Text(
+                            note.tag,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                        Text(
+                          createdAtText,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 4),
+              const SizedBox(width: 8),
 
-              // 2行目：タグChip＋作業日時
-              Row(
-                children: [
-                  Chip(
-                    label: Text(
-                      note.tag,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    createdAtText,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                  ),
-                ],
+              // 右：ピン（アクション）
+              IconButton(
+                icon: Icon(
+                  note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  color: note.isPinned ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                ),
+                tooltip: note.isPinned ? 'ピン留め解除' : 'ピン留め',
+                onPressed: onTogglePin,
               ),
-
-              const SizedBox(height: 8),
-
-              //  3行目：本文の1行目だけ
-              Text(
-                note.body.isEmpty ? '' : note.body.split('\n').first,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
-              ),
-
             ],
           ),
         ),
-        // child: ListTile(
-        //   title: Text(note.title),
-        //   subtitle: Text(
-        //     note.body.isEmpty ? '' : note.body.split('\n').first,
-        //     maxLines: 1,
-        //     overflow: TextOverflow.ellipsis,
-        //   ),
-        //   trailing: IconButton(
-        //     icon: Icon(note.isPinned ? Icons.push_pin : Icons.push_pin_outlined),
-        //     onPressed: onTogglePin,
-        //   ),
-        //   onTap: onTap,
-        //   // 長押しで削除
-        //   onLongPress: onLongPress,
-        // ),
       ),
     );
   }
