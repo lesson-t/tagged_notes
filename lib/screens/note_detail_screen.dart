@@ -21,11 +21,27 @@ String _formatDate(DateTime dateTime) {
 
 @override
 Widget build(BuildContext context) {
-  final provider = context.watch<NoteProvider>();
-  final Note note = provider.notes.firstWhere(
-    (n) => n.id == noteId,
-    orElse: () => throw Exception('Note not found: id=$noteId') 
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+
+  // Provider から 最新のNote を取得
+  // final provider = context.watch<NoteProvider>();
+  final notes = context.watch<NoteProvider>().notes;
+  final Note? note = notes.where((n) => n.id == noteId).cast<Note?>().firstWhere(
+    (n) => n != null,
+    orElse: () => null,
   );
+
+  // 
+  if (note == null) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('メモ詳細')),
+      body: const Center(
+        child: Text('メモが見つかりませんでした。'),
+      ),
+    );
+  }
+     
   final createdAtText = _formatDate(note.createdAt);
 
   return Scaffold(
@@ -34,8 +50,8 @@ Widget build(BuildContext context) {
       actions: [
         IconButton(
           icon: const Icon(Icons.edit),
+          tooltip: '編集',
           onPressed: () {
-            // 
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -46,66 +62,84 @@ Widget build(BuildContext context) {
         )
       ],
     ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // タイトル　＋　ピン
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        note.title,
-                        style: Theme.of(context).textTheme.titleLarge,
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // タイトル　＋　ピン
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          note.title,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
-                    if (note.isPinned)
-                      const Icon(
-                        Icons.push_pin,
-                        size: 20,
+                      const SizedBox(width: 8),
+                      
+                      // if (note.isPinned)
+                      //   const Icon(
+                      //     Icons.push_pin,
+                      //     size: 20,
+                      //   ),
+
+                      Icon(
+                        note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        color: note.isPinned 
+                            ? colorScheme.primary 
+                            : colorScheme.onSurfaceVariant,
                       ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                    ],
+                  ),
+                  
+                  const SizedBox(width: 12),
+                
+                  // タグ　＋　作成日時
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      Chip(
+                        label: Text(note.tag),
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      Text(
+                        createdAtText,
+                        style:  theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
 
-                // タグ　＋　作成日時
-                Row(
-                  children: [
-                    Chip(
-                      label: Text(note.tag)
+                  const SizedBox(height: 16),
+                  Divider(color: colorScheme.outlineVariant),
+                  const SizedBox(height: 16),
+                
+                  // 本文
+                  Text(
+                    note.body.isEmpty ? '（本文はありません）' : note.body,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      height: 1.5
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      createdAtText,
-                      style:  Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                const Divider(),
-
-                const SizedBox(height: 8),
-
-                // 本文
-                Text(
-                  note.body.isEmpty ? '（本文はありません）' : note.body,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
