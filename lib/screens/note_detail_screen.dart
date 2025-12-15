@@ -67,74 +67,72 @@ Widget build(BuildContext context) {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // タイトル　＋　ピン
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          note.title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // タイトル　＋　ピン
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        note.title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      
-                      // if (note.isPinned)
-                      //   const Icon(
-                      //     Icons.push_pin,
-                      //     size: 20,
-                      //   ),
-
-                      Icon(
-                        note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                        color: note.isPinned 
-                            ? colorScheme.primary 
-                            : colorScheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(width: 12),
-                
-                  // タグ　＋　作成日時
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      Chip(
-                        label: Text(note.tag),
-                        visualDensity: VisualDensity.compact,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      Text(
-                        createdAtText,
-                        style:  theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-                  Divider(color: colorScheme.outlineVariant),
-                  const SizedBox(height: 16),
-                
-                  // 本文
-                  Text(
-                    note.body.isEmpty ? '（本文はありません）' : note.body,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      height: 1.5
                     ),
+                    const SizedBox(width: 8),
+                    
+                    // if (note.isPinned)
+                    //   const Icon(
+                    //     Icons.push_pin,
+                    //     size: 20,
+                    //   ),
+            
+                    Icon(
+                      note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                      color: note.isPinned 
+                          ? colorScheme.primary 
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(width: 12),
+              
+                // タグ　＋　作成日時
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Chip(
+                      label: Text(note.tag),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    Text(
+                      createdAtText,
+                      style:  theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+            
+                const SizedBox(height: 16),
+                Divider(color: colorScheme.outlineVariant),
+                const SizedBox(height: 16),
+              
+                // 本文
+                Text(
+                  note.body.isEmpty ? '（本文はありません）' : note.body,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    height: 1.5
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
