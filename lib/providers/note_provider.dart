@@ -23,10 +23,6 @@ class NoteProvider with ChangeNotifier {
     return [...pinned, ...others];
   }
 
-  // NoteProvider() {
-  //   loadNotes();
-  // }
-
   // 初期化メソッド
   Future<void> init() async {
     if (_isInitialized) return;
@@ -62,7 +58,7 @@ class NoteProvider with ChangeNotifier {
     if (trimmedTitle.isEmpty) return;
     _notes.add(
       Note(
-        title: title,
+        title: trimmedTitle,
         body: body, 
         tag: tag
       ),
@@ -107,5 +103,12 @@ class NoteProvider with ChangeNotifier {
     note.update(title: title, body: body, tag: tag);
     await _saveNotes();
     notifyListeners();
+  }
+
+  Note? findById(int id) {
+    for (final n in _notes) {
+      if (n.id == id) return n;
+    }
+    return null;
   }
 }
