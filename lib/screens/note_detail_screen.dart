@@ -77,7 +77,7 @@ Widget build(BuildContext context) {
                     Expanded(
                       child: Text(
                         note.title,
-                        style: theme.textTheme.titleSmall?.copyWith(
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
