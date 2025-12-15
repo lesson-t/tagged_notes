@@ -58,7 +58,7 @@ class NoteProvider with ChangeNotifier {
     if (trimmedTitle.isEmpty) return;
     _notes.add(
       Note(
-        title: title,
+        title: trimmedTitle,
         body: body, 
         tag: tag
       ),
