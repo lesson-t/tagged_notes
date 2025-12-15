@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 
@@ -25,12 +24,8 @@ Widget build(BuildContext context) {
   final colorScheme = theme.colorScheme;
 
   // Provider から 最新のNote を取得
-  // final provider = context.watch<NoteProvider>();
-  final notes = context.watch<NoteProvider>().notes;
-  final Note? note = notes.where((n) => n.id == noteId).cast<Note?>().firstWhere(
-    (n) => n != null,
-    orElse: () => null,
-  );
+  final provider = context.watch<NoteProvider>();
+  final note = provider.findById(noteId);
 
   // 
   if (note == null) {
