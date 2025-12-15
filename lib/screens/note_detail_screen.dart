@@ -61,10 +61,10 @@ Widget build(BuildContext context) {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          // elevation: 2,
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(12),
+          // ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -83,12 +83,6 @@ Widget build(BuildContext context) {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    
-                    // if (note.isPinned)
-                    //   const Icon(
-                    //     Icons.push_pin,
-                    //     size: 20,
-                    //   ),
             
                     Icon(
                       note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
