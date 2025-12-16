@@ -61,10 +61,6 @@ Widget build(BuildContext context) {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Card(
-          // elevation: 2,
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(12),
-          // ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
