@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
 void main() {
@@ -12,8 +13,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => NoteProvider(),
+    return MultiProvider(
+      providers: [
+        Provider<NoteRepository>(
+          create: (_) => NoteRepository(),
+        ),
+        ChangeNotifierProxyProvider<NoteRepository, NoteProvider>(
+          create: (context) => NoteProvider(context.read<NoteRepository>()),
+          update: (context, repo, previous) => previous ?? NoteProvider(repo),
+        ),
+      ],
+
       child: MaterialApp(
         title: 'Tagged Notes',
 

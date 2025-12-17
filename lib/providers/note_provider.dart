@@ -11,7 +11,8 @@ class NoteProvider with ChangeNotifier {
   // 初期化済みかどうかのフラグ（複数回 init() が呼ばれても安全にするため） 
   bool _isInitialized = false;
 
-  NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
+  // NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
+  NoteProvider(this._repo);
 
   // 一覧取得（ピン付き→それ以外 の順で並び替え）
   List<Note> get notes {
