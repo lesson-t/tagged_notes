@@ -1,0 +1,35 @@
+name: Flutter Test
+
+on:
+    pull_request:
+        branches: [ "main" ]
+    push:
+        branches: [ "main" ]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            
+            # Flutter SDK をセットアップ（キャッシュ込み）
+            - name: Set up Flutter
+              uses: subosito/flutter-action@v2
+              with:
+                channel: stable
+                cache: true
+            
+            - name: Flutter version
+              run: flutter --version
+
+            - name: Install dependenceies
+              run: flutter pub get
+
+            # 解析も一緒に回すと実務的（任意だが推奨）
+            - name: Analyze
+              run: flutter analyze
+
+            - name: Run test
+              run: flutter test
