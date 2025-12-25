@@ -97,6 +97,7 @@ class NoteListItem extends StatelessWidget {
 
               // 右：ピン（アクション）
               IconButton(
+                key: ValueKey('pin_button_${note.id}'),
                 icon: Icon(
                   note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   color: note.isPinned ? colorScheme.primary : colorScheme.onSurfaceVariant,
