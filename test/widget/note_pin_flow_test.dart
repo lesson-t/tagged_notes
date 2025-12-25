@@ -32,30 +32,11 @@ Future<void> _seedTwoNotes(NoteProvider provider) async {
 }
 
 /// 「title を含む NoteListItem」の中のピンアイコンを押す
-Future<void> _tapPinForTitle(WidgetTester tester, String title) async {
-  final itemFinder = find.ancestor(
-    of: find.text(title),
-    matching: find.byType(NoteListItem),
-  );
-  expect(itemFinder, findsOneWidget);
+Future<void> _tapPinById(WidgetTester tester, int noteId) async {
+  final pinButton = find.byKey(ValueKey('pin_button_$noteId'));
+  expect(pinButton, findsOneWidget);
 
-  final outlined = find.descendant(
-    of: itemFinder,
-    matching: find.byIcon(Icons.push_pin_outlined),
-  );
-  final filled = find.descendant(
-    of: itemFinder,
-    matching: find.byIcon(Icons.push_pin),
-  );
-
-  if (outlined.evaluate().isNotEmpty) {
-    await tester.tap(outlined);
-  } else if (filled.evaluate().isNotEmpty) {
-    await tester.tap(filled);
-  } else {
-    fail('ピン用のアイコンが見つかりませんでした: $title');
-  }
-
+  await tester.tap(pinButton);
   await tester.pumpAndSettle();
 }
 
@@ -89,7 +70,9 @@ void main() {
 
 testWidgets('ピン切替でアイコンが変わる', (tester) async {
   final provider = _createProviderWithFakeRepo(initalNotes: []);
+
   await provider.addNote('メモA', '本文A', '仕事');
+  final idA = provider.notes.first.id; // ★ 実IDを取得
 
   await tester.pumpWidget(_buildTestApp(provider: provider));
   await tester.pumpAndSettle();
@@ -100,19 +83,23 @@ testWidgets('ピン切替でアイコンが変わる', (tester) async {
   expect(filledInItem('メモA'), findsNothing);
 
   // ピンON
-  await _tapPinForTitle(tester, 'メモA');
+  await _tapPinById(tester, idA);
   expect(filledInItem('メモA'), findsOneWidget);
   expect(outlinedInItem('メモA'), findsNothing);
 
   // ピンOFF
-  await _tapPinForTitle(tester, 'メモA');
+  await _tapPinById(tester, idA);
   expect(outlinedInItem('メモA'), findsOneWidget);
   expect(filledInItem('メモA'), findsNothing);
   });
 
   testWidgets('ピン留めすると一覧の先頭に移動し、解除で戻る', (tester) async {
     final provider = _createProviderWithFakeRepo();
-    await _seedTwoNotes(provider);
+    await _seedTwoNotes(provider); // A(id=0), B(id=1)
+
+    // ★ 実IDを取得（タイトルで引く）
+    // final idA = provider.notes.firstWhere((n) => n.title == 'メモA').id;
+    final idB = provider.notes.firstWhere((n) => n.title == 'メモB').id;
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle();
@@ -125,11 +112,11 @@ testWidgets('ピン切替でアイコンが変わる', (tester) async {
     _expectFirstItemHasTitle(tester, 'メモA');
 
     // メモBをピン → pinned は先頭に来るはず
-    await _tapPinForTitle(tester, 'メモB');
+    await _tapPinById(tester, idB);
     _expectFirstItemHasTitle(tester, 'メモB');
 
     // メモBのピン解除 → 元の順序（Aが先頭）に戻るはず
-    await _tapPinForTitle(tester, 'メモB');
+    await _tapPinById(tester, idB);
     _expectFirstItemHasTitle(tester, 'メモA');
   });
 }
