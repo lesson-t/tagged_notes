@@ -31,27 +31,20 @@ Future<void> _seedTwoNotes(NoteProvider provider) async {
   await provider.addNote('メモB', '本文B', '仕事');
 }
 
-/// タイトル行（NoteListItem）の親要素を取得して、同じ行のピンボタンを押す
+/// 「title を含む NoteListItem」の中のピンアイコンを押す
 Future<void> _tapPinForTitle(WidgetTester tester, String title) async {
-  final tileFinder = find.ancestor(
-    of: find.text(title), 
+  final itemFinder = find.ancestor(
+    of: find.text(title),
     matching: find.byType(NoteListItem),
   );
-  expect(tileFinder, findsOneWidget);
+  expect(itemFinder, findsOneWidget);
 
-  // NoteListItem内の IconButton を探して押す（ピンボタン想定）
-  final pinButtonFinder = find.descendant(
-    of: tileFinder, 
-    matching: find.byType(IconButton),
-  );
-
-  // NoteListItem内にIconButtonが複数ある場合に備えて、pin icon を含むものを優先
   final outlined = find.descendant(
-    of: tileFinder, 
+    of: itemFinder,
     matching: find.byIcon(Icons.push_pin_outlined),
   );
   final filled = find.descendant(
-    of: tileFinder, 
+    of: itemFinder,
     matching: find.byIcon(Icons.push_pin),
   );
 
@@ -60,12 +53,21 @@ Future<void> _tapPinForTitle(WidgetTester tester, String title) async {
   } else if (filled.evaluate().isNotEmpty) {
     await tester.tap(filled);
   } else {
-    // 最後の手段：IconButtonが1個だけならそれを押す
-    expect(pinButtonFinder, findsOneWidget);
-    await tester.tap(pinButtonFinder);
+    fail('ピン用のアイコンが見つかりませんでした: $title');
   }
 
   await tester.pumpAndSettle();
+}
+
+/// 一覧の先頭 NoteListItem が、指定タイトルを含むかを検証
+void _expectFirstItemHasTitle(WidgetTester tester, String title) {
+  final firstItem = find.byType(NoteListItem).first;
+  expect(firstItem, findsOneWidget);
+
+  expect(
+    find.descendant(of: firstItem, matching: find.text(title)),
+    findsOneWidget,
+  );
 }
 
 void main() {
@@ -106,5 +108,28 @@ testWidgets('ピン切替でアイコンが変わる', (tester) async {
   await _tapPinForTitle(tester, 'メモA');
   expect(outlinedInItem('メモA'), findsOneWidget);
   expect(filledInItem('メモA'), findsNothing);
+  });
+
+  testWidgets('ピン留めすると一覧の先頭に移動し、解除で戻る', (tester) async {
+    final provider = _createProviderWithFakeRepo();
+    await _seedTwoNotes(provider);
+
+    await tester.pumpWidget(_buildTestApp(provider: provider));
+    await tester.pumpAndSettle();
+
+    // 前提：A/B が表示されている
+    expect(find.text('メモA'), findsOneWidget);
+    expect(find.text('メモB'), findsOneWidget);
+
+    // 初期は追加順：A → B（先頭は A）
+    _expectFirstItemHasTitle(tester, 'メモA');
+
+    // メモBをピン → pinned は先頭に来るはず
+    await _tapPinForTitle(tester, 'メモB');
+    _expectFirstItemHasTitle(tester, 'メモB');
+
+    // メモBのピン解除 → 元の順序（Aが先頭）に戻るはず
+    await _tapPinForTitle(tester, 'メモB');
+    _expectFirstItemHasTitle(tester, 'メモA');
   });
 }
