@@ -46,19 +46,28 @@ void main() {
   expect(find.text('元本文'), findsOneWidget);
 
   // 2) 詳細 → 編集（AppBarの編集アイコン）
+  await tester.tap(find.byIcon(Icons.edit));
+  await tester.pumpAndSettle();
 
   // 編集画面（編集モード）
+  expect(find.text('メモを編集'), findsOneWidget);
 
   // 3) タイトル/本文を変更（未保存）
+  await tester.enterText(find.widgetWithText(TextField, 'タイトル'), '変更後タイトル');
+  await tester.enterText(find.widgetWithText(TextField, '本文'), '変更後本文');
+  await tester.pump();
 
   // 4) 保存せずに戻る（AppBar leading）
   // MaterialApp + Scaffold の AppBar なら tooltip 'Back' が基本
-
+  await tester.tap(find.byTooltip('Back'));
+  await tester.pumpAndSettle();
 
   // 5) 詳細に戻った後、表示が元のままを確認
+  expect(find.text('元タイトル'), findsOneWidget);
+  expect(find.text('元本文'), findsOneWidget);
 
   // 変更後が出ていない
-
-
+  expect(find.text('変更後タイトル'), findsNothing);
+  expect(find.text('変更後本文'), findsNothing);
   });
 }
