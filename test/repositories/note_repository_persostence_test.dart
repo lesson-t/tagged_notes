@@ -55,4 +55,13 @@ void main() {
 
     expect(loaded, isEmpty);
   });
+
+  test('上書き保存すると最新状態で復元される', () async {
+    await repo.save([Note(title: 'A', body: 'bodyA', tag: '仕事')]);
+    await repo.save([Note(title: 'B', body: 'bodyB', tag: '仕事')]);
+
+    final loaded = await repo.load();
+    expect(loaded.length, 1);
+    expect(loaded.first.title, 'B');
+  });
 }
