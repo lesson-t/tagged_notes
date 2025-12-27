@@ -25,4 +25,15 @@ void main() {
     expect(loaded[0].title, 'A');
     expect(loaded[1].title, 'B');
   });
+
+  test('isPinned が save -> load で保持される', () async {
+    final n = Note(title: 'A', body: 'bodyA', tag: '仕事');
+    n.togglePin(); // pinned = true
+
+    await repo.save([n]);
+    final loaded = await repo.load();
+
+    expect(loaded.length, 1);
+    expect(loaded.first.isPinned, isTrue);
+  });
 }
