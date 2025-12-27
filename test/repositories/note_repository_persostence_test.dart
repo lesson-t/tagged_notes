@@ -48,4 +48,11 @@ void main() {
     // DateTimeは完全一致できる設計（toMap/fromMapがISO文字列などで正しく往復できている前提）
     expect(loaded.first.createdAt, equals(n.createdAt));
   });
+
+  test('空リストを保存すると load も空になる', () async {
+    await repo.save([]);
+    final loaded = await repo.load();
+
+    expect(loaded, isEmpty);
+  });
 }
