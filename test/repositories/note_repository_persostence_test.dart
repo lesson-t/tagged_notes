@@ -36,4 +36,16 @@ void main() {
     expect(loaded.length, 1);
     expect(loaded.first.isPinned, isTrue);
   });
+
+  test('createdAt が save -> load で保持される', () async {
+    final n = Note(title: 'A', body: 'bodyA', tag: '仕事');
+
+    await repo.save([n]);
+    final loaded = await repo.load();
+
+    expect(loaded.length, 1);
+
+    // DateTimeは完全一致できる設計（toMap/fromMapがISO文字列などで正しく往復できている前提）
+    expect(loaded.first.createdAt, equals(n.createdAt));
+  });
 }
