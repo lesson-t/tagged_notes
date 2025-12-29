@@ -11,9 +11,7 @@ import '../fakes/fake_note_repository.dart';
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
     value: provider,
-    child: const MaterialApp(
-      home: NoteListScreen(),
-    ),
+    child: const MaterialApp(home: NoteListScreen()),
   );
 }
 
@@ -28,7 +26,6 @@ Future<void> _seedNotes(NoteProvider provider) async {
   await provider.addNote('仕事メモ', 'body', '仕事');
   await provider.addNote('私用メモ', 'body', 'プライベート');
   await provider.addNote('その他メモ', 'body', 'その他');
-
 }
 
 void main() {
@@ -37,7 +34,7 @@ void main() {
     await _seedNotes(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); 
+    await tester.pumpAndSettle();
 
     // 全件のタイトルが表示される
     expect(find.text('仕事メモ'), findsOneWidget);
@@ -45,7 +42,9 @@ void main() {
     expect(find.text('その他メモ'), findsOneWidget);
 
     // ChoiceChip の selected 状態を直接検証
-    final chipAll = tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'すべて'));
+    final chipAll = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'すべて'),
+    );
     expect(chipAll.selected, isTrue);
   });
 
@@ -54,7 +53,7 @@ void main() {
     await _seedNotes(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); 
+    await tester.pumpAndSettle();
 
     // 「仕事」チップを押して絞り込み
     await tester.tap(find.widgetWithText(ChoiceChip, '仕事'));
@@ -66,10 +65,14 @@ void main() {
     expect(find.text('その他メモ'), findsNothing);
 
     // selected 状態の確認
-    final chipWork = tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '仕事'));
+    final chipWork = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, '仕事'),
+    );
     expect(chipWork.selected, isTrue);
 
-    final chipAll = tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'すべて'));
+    final chipAll = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'すべて'),
+    );
     expect(chipAll.selected, isFalse);
   });
 }

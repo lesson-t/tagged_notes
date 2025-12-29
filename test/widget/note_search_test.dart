@@ -11,9 +11,7 @@ import '../fakes/fake_note_repository.dart';
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
     value: provider,
-    child: const MaterialApp(
-      home: NoteListScreen(),
-    ),
+    child: const MaterialApp(home: NoteListScreen()),
   );
 }
 
@@ -25,13 +23,15 @@ NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
 }
 
 Future<void> _seedNotes(NoteProvider provider) async {
-
   await provider.addNote('仕事メモA', '本文A', '仕事');
   await provider.addNote('仕事メモB', '本文B', '仕事');
   await provider.addNote('私用メモC', '本文C', 'プライベート');
 }
 
-Future<void> _openSearchDialogAndSearch(WidgetTester tester, String query) async {
+Future<void> _openSearchDialogAndSearch(
+  WidgetTester tester,
+  String query,
+) async {
   // 検索アイコン → ダイアログ表示
   await tester.tap(find.byIcon(Icons.search));
   await tester.pumpAndSettle();
@@ -41,7 +41,7 @@ Future<void> _openSearchDialogAndSearch(WidgetTester tester, String query) async
   expect(dialogFinder, findsOneWidget);
 
   final textFieldInDialog = find.descendant(
-    of: dialogFinder, 
+    of: dialogFinder,
     matching: find.byType(TextField),
   );
   expect(textFieldInDialog, findsOneWidget);
@@ -74,11 +74,11 @@ void main() {
     // AlertDialog が表示される
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text('検索キーワード'), findsOneWidget);
-    expect(find.textContaining('タイトルや本文を検索'), findsOneWidget); 
+    expect(find.textContaining('タイトルや本文を検索'), findsOneWidget);
   });
 
   testWidgets('検索キーワードで一覧が絞り込まれる', (tester) async {
-    // 
+    //
     final initial = [
       Note(title: 'りんごメモ', body: '買うもの：りんご', tag: 'プライベート'),
       Note(title: '会議メモ', body: '議題：週次MTG', tag: '仕事'),
@@ -86,7 +86,7 @@ void main() {
     final provider = _createProviderWithFakeRepo(initalNotes: initial);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); 
+    await tester.pumpAndSettle();
 
     // 起動直後：2件見えるはず（最低限タイトルで確認）
     expect(find.text('りんごメモ'), findsOneWidget);
@@ -98,7 +98,7 @@ void main() {
 
     // Dialog内のTextFieldへ入力（AlertDialog配下に限定して探すと堅牢）
     final dialogTextField = find.descendant(
-      of: find.byType(AlertDialog), 
+      of: find.byType(AlertDialog),
       matching: find.byType(TextField),
     );
     expect(dialogTextField, findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
     expect(find.text('会議メモ'), findsNothing);
   });
 
-    // feature/widget-test-tag-and-search
+  // feature/widget-test-tag-and-search
   testWidgets('タグ絞り込み後、検索でさらに絞り込める（AND条件）', (tester) async {
     // 画面を縦長にして、ListView が全件描画しやすいようにする
     await tester.binding.setSurfaceSize(const Size(800, 2000));

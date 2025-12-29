@@ -25,7 +25,7 @@ class NoteListItem extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final preview = note.body.isEmpty ? '（本文なし）' :note.body.split('\n').first;
+    final preview = note.body.isEmpty ? '（本文なし）' : note.body.split('\n').first;
     final createdAtText = _formatDate(note.createdAt);
 
     return Card(
@@ -66,7 +66,7 @@ class NoteListItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                
+
                     // 3段目：タグChip ＋ 日時（メタ）
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -75,7 +75,8 @@ class NoteListItem extends StatelessWidget {
                       children: [
                         Chip(
                           visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                           label: Text(
                             note.tag,
                             style: theme.textTheme.bodyMedium,
@@ -100,7 +101,9 @@ class NoteListItem extends StatelessWidget {
                 key: ValueKey('pin_button_${note.id}'),
                 icon: Icon(
                   note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                  color: note.isPinned ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                  color: note.isPinned
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
                 tooltip: note.isPinned ? 'ピン留め解除' : 'ピン留め',
                 onPressed: onTogglePin,
@@ -111,5 +114,4 @@ class NoteListItem extends StatelessWidget {
       ),
     );
   }
-
 }

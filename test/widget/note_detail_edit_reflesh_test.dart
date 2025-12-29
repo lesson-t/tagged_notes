@@ -10,9 +10,7 @@ import '../fakes/fake_note_repository.dart';
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
     value: provider,
-    child: const MaterialApp(
-      home: NoteListScreen(),
-    ),
+    child: const MaterialApp(home: NoteListScreen()),
   );
 }
 
@@ -28,7 +26,7 @@ Future<void> _seedOneNote(NoteProvider provider) async {
 }
 
 void main() {
-    testWidgets('詳細→編集→保存で詳細画面の表示が更新される', (tester) async {
+  testWidgets('詳細→編集→保存で詳細画面の表示が更新される', (tester) async {
     final provider = _createProviderWithFakeRepo(initalNotes: []);
     await _seedOneNote(provider);
 

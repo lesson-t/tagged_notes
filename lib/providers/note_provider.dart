@@ -8,7 +8,7 @@ class NoteProvider with ChangeNotifier {
   // 内部で持っている Note の一覧
   final List<Note> _notes = [];
 
-  // 初期化済みかどうかのフラグ（複数回 init() が呼ばれても安全にするため） 
+  // 初期化済みかどうかのフラグ（複数回 init() が呼ばれても安全にするため）
   bool _isInitialized = false;
 
   // NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
@@ -35,7 +35,9 @@ class NoteProvider with ChangeNotifier {
     // _isInitialized = true;
 
     final loaded = await _repo.load();
-    _notes..clear()..addAll(loaded);
+    _notes
+      ..clear()
+      ..addAll(loaded);
 
     _isInitialized = true;
     notifyListeners();
@@ -61,7 +63,7 @@ class NoteProvider with ChangeNotifier {
   Future<void> togglePin(int id) async {
     final note = _notes.firstWhere(
       (n) => n.id == id,
-      orElse: () => throw Exception('Note not found: id=$id')
+      orElse: () => throw Exception('Note not found: id=$id'),
     );
     note.togglePin();
     await _repo.save(_notes);
@@ -71,10 +73,10 @@ class NoteProvider with ChangeNotifier {
   // ノートの更新（idで指定）
   Future<void> updateNote(int id, String title, String body, String tag) async {
     final note = _notes.firstWhere(
-      (n) => n.id == id, 
-      orElse: () => throw Exception("Note not found: id=$id")
+      (n) => n.id == id,
+      orElse: () => throw Exception("Note not found: id=$id"),
     );
-    
+
     note.update(title: title, body: body, tag: tag);
     await _repo.save(_notes);
     notifyListeners();

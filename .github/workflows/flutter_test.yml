@@ -27,6 +27,9 @@ jobs:
             - name: Install dependenceies
               run: flutter pub get
 
+            - name: Check formatting
+              run: dart format --set-exit-if-changed .
+
             # 解析も一緒に回すと実務的（任意だが推奨）
             - name: Analyze
               run: flutter analyze
