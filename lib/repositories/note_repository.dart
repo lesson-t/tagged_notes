@@ -14,7 +14,7 @@ class NoteRepository {
       final map = jsonDecode(jsonStr) as Map<String, dynamic>;
       return Note.fromMap(map);
     }).toList();
-  } 
+  }
 
   Future<void> save(List<Note> notes) async {
     final prefs = await SharedPreferences.getInstance();

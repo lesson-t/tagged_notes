@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +9,7 @@ import '../fakes/fake_note_repository.dart';
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
     value: provider,
-    child: const MaterialApp(
-      home: NoteListScreen(),
-    ),
+    child: const MaterialApp(home: NoteListScreen()),
   );
 }
 
@@ -68,6 +65,5 @@ void main() {
 
     // 一覧に戻り、作成したメモが表示される
     expect(find.text('テストタイトル'), findsOneWidget);
-
   });
 }

@@ -12,9 +12,7 @@ import '../fakes/fake_note_repository.dart';
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
     value: provider,
-    child: const MaterialApp(
-      home: NoteListScreen(),
-    ),
+    child: const MaterialApp(home: NoteListScreen()),
   );
 }
 
@@ -52,45 +50,40 @@ void _expectFirstItemHasTitle(WidgetTester tester, String title) {
 }
 
 void main() {
-
-  Finder itemOf(String title) => find.ancestor(
-    of: find.text(title),
-    matching: find.byType(NoteListItem),
-  );
+  Finder itemOf(String title) =>
+      find.ancestor(of: find.text(title), matching: find.byType(NoteListItem));
 
   Finder outlinedInItem(String title) => find.descendant(
     of: itemOf(title),
     matching: find.byIcon(Icons.push_pin_outlined),
   );
 
-  Finder filledInItem(String title) => find.descendant(
-    of: itemOf(title),
-    matching: find.byIcon(Icons.push_pin),
-  );
+  Finder filledInItem(String title) =>
+      find.descendant(of: itemOf(title), matching: find.byIcon(Icons.push_pin));
 
-testWidgets('ピン切替でアイコンが変わる', (tester) async {
-  final provider = _createProviderWithFakeRepo(initalNotes: []);
+  testWidgets('ピン切替でアイコンが変わる', (tester) async {
+    final provider = _createProviderWithFakeRepo(initalNotes: []);
 
-  await provider.addNote('メモA', '本文A', '仕事');
-  final idA = provider.notes.first.id; // ★ 実IDを取得
+    await provider.addNote('メモA', '本文A', '仕事');
+    final idA = provider.notes.first.id; // ★ 実IDを取得
 
-  await tester.pumpWidget(_buildTestApp(provider: provider));
-  await tester.pumpAndSettle();
+    await tester.pumpWidget(_buildTestApp(provider: provider));
+    await tester.pumpAndSettle();
 
-  // 初期：未ピン
-  expect(itemOf('メモA'), findsOneWidget);
-  expect(outlinedInItem('メモA'), findsOneWidget);
-  expect(filledInItem('メモA'), findsNothing);
+    // 初期：未ピン
+    expect(itemOf('メモA'), findsOneWidget);
+    expect(outlinedInItem('メモA'), findsOneWidget);
+    expect(filledInItem('メモA'), findsNothing);
 
-  // ピンON
-  await _tapPinById(tester, idA);
-  expect(filledInItem('メモA'), findsOneWidget);
-  expect(outlinedInItem('メモA'), findsNothing);
+    // ピンON
+    await _tapPinById(tester, idA);
+    expect(filledInItem('メモA'), findsOneWidget);
+    expect(outlinedInItem('メモA'), findsNothing);
 
-  // ピンOFF
-  await _tapPinById(tester, idA);
-  expect(outlinedInItem('メモA'), findsOneWidget);
-  expect(filledInItem('メモA'), findsNothing);
+    // ピンOFF
+    await _tapPinById(tester, idA);
+    expect(outlinedInItem('メモA'), findsOneWidget);
+    expect(filledInItem('メモA'), findsNothing);
   });
 
   testWidgets('ピン留めすると一覧の先頭に移動し、解除で戻る', (tester) async {

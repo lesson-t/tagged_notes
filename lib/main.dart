@@ -15,9 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<NoteRepository>(
-          create: (_) => NoteRepository(),
-        ),
+        Provider<NoteRepository>(create: (_) => NoteRepository()),
         ChangeNotifierProxyProvider<NoteRepository, NoteProvider>(
           create: (context) => NoteProvider(context.read<NoteRepository>()),
           update: (context, repo, previous) => previous ?? NoteProvider(repo),
@@ -34,9 +32,7 @@ class MyApp extends StatelessWidget {
             seedColor: Colors.blue,
             brightness: Brightness.light,
           ),
-          appBarTheme: const AppBarTheme(
-            centerTitle: false,
-          ),
+          appBarTheme: const AppBarTheme(centerTitle: false),
           cardTheme: CardThemeData(
             elevation: 1,
             shape: RoundedRectangleBorder(
@@ -48,13 +44,11 @@ class MyApp extends StatelessWidget {
         // ダークテーマ
         darkTheme: ThemeData(
           useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
+          colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.blue,
             brightness: Brightness.dark,
           ),
-          appBarTheme: const AppBarTheme(
-            centerTitle: false,
-          ),
+          appBarTheme: const AppBarTheme(centerTitle: false),
           cardTheme: CardThemeData(
             elevation: 1,
             shape: RoundedRectangleBorder(
@@ -71,4 +65,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

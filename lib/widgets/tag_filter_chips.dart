@@ -23,7 +23,7 @@ class TagFilterChips extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ChoiceChip(
-              label: Text(tag), 
+              label: Text(tag),
               selected: isSelected,
               onSelected: (_) {
                 onTagSelected(tag);

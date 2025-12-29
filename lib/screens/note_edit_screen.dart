@@ -4,7 +4,7 @@ import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 
 class NoteEditScreen extends StatefulWidget {
-  final Note? note;  // あるときは編集、nullのときは新規
+  final Note? note; // あるときは編集、nullのときは新規
 
   const NoteEditScreen({super.key, this.note});
 
@@ -30,7 +30,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     _isEditing = note != null; // noteがあれば編集モード
 
     if (note != null) {
-      // 
+      //
       _titleController.text = note.title;
       _bodyController.text = note.body;
       _selectedTag = note.tag;
@@ -50,9 +50,9 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     final tag = _selectedTag;
 
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('タイトルを入力してください'))
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('タイトルを入力してください')));
       return;
     }
 
@@ -76,15 +76,13 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: _saveNote, 
+            onPressed: _saveNote,
             tooltip: '保存',
           ),
         ],
@@ -127,19 +125,10 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                 DropdownButton<String>(
                   value: _selectedTag,
                   items: const [
-                    DropdownMenuItem(
-                      value: '仕事',
-                      child: Text('仕事'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'プライベート',
-                      child: Text('プライベート')
-                    ),
-                    DropdownMenuItem(
-                      value: 'その他',
-                      child: Text('その他')
-                    ),
-                  ], 
+                    DropdownMenuItem(value: '仕事', child: Text('仕事')),
+                    DropdownMenuItem(value: 'プライベート', child: Text('プライベート')),
+                    DropdownMenuItem(value: 'その他', child: Text('その他')),
+                  ],
                   onChanged: (value) {
                     if (value == null) return;
                     setState(() {
@@ -148,8 +137,8 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
                   },
                 ),
               ],
-            )
-          ]
+            ),
+          ],
         ),
       ),
     );
