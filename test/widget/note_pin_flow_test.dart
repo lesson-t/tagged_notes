@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
 
-import '../fakes/fake_note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
@@ -16,10 +16,9 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
-  final repo = FakeNoteRepository(initial: initalNotes);
-
-  // 位置引数（main.dart で NoteProvider(repo)）
+NoteProvider _createProvider() {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
   return NoteProvider(repo);
 }
 
@@ -62,7 +61,7 @@ void main() {
       find.descendant(of: itemOf(title), matching: find.byIcon(Icons.push_pin));
 
   testWidgets('ピン切替でアイコンが変わる', (tester) async {
-    final provider = _createProviderWithFakeRepo(initalNotes: []);
+    final provider = _createProvider();
 
     await provider.addNote('メモA', '本文A', '仕事');
     final idA = provider.notes.first.id; // ★ 実IDを取得
@@ -87,7 +86,7 @@ void main() {
   });
 
   testWidgets('ピン留めすると一覧の先頭に移動し、解除で戻る', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
     await _seedTwoNotes(provider); // A(id=0), B(id=1)
 
     // ★ 実IDを取得（タイトルで引く）

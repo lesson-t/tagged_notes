@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
-import '../fakes/fake_note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
@@ -15,10 +16,15 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
-  final repo = FakeNoteRepository(initial: initalNotes);
+Future<NoteProvider> _createProvider({List<Note>? initialNotes}) async {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
 
-  // 位置引数（main.dart で NoteProvider(repo)）
+  // ★ 画面init()がloadする前提なので、初期データは repo に保存しておく
+  if (initialNotes != null) {
+    await repo.save(initialNotes);
+  }
+
   return NoteProvider(repo);
 }
 
@@ -62,7 +68,7 @@ Future<void> _openSearchDialogAndSearch(
 
 void main() {
   testWidgets('検索アイコン押下で検索ダイアログが開く', (tester) async {
-    final provider = _createProviderWithFakeRepo(initalNotes: []);
+    final provider = await _createProvider();
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle(); // init() が走るなら落ち着くまで待つ
@@ -79,11 +85,13 @@ void main() {
 
   testWidgets('検索キーワードで一覧が絞り込まれる', (tester) async {
     //
-    final initial = [
+    final initialNotes = [
       Note(title: 'りんごメモ', body: '買うもの：りんご', tag: 'プライベート'),
       Note(title: '会議メモ', body: '議題：週次MTG', tag: '仕事'),
     ];
-    final provider = _createProviderWithFakeRepo(initalNotes: initial);
+
+    // initialNotes は repo.save → 画面init()でloadされる
+    final provider = await _createProvider(initialNotes: initialNotes);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle();
@@ -123,7 +131,7 @@ void main() {
       await tester.binding.setSurfaceSize(null); // 後片付け
     });
 
-    final provider = _createProviderWithFakeRepo();
+    final provider = await _createProvider();
     await _seedNotes(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));

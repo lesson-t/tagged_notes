@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
-import '../fakes/fake_note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
@@ -13,16 +14,15 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-NoteProvider _createProviderWithFakeRepo() {
-  final repo = FakeNoteRepository();
-
-  // 位置引数（main.dart で NoteProvider(repo)）
+NoteProvider _createProvider() {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
   return NoteProvider(repo);
 }
 
 void main() {
   testWidgets('一覧画面が表示され、空状態メッセージが出る', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle(); // init() のmicrotask等を持つ
@@ -32,7 +32,7 @@ void main() {
   });
 
   testWidgets('FAB押下で新規メモ画面へ遷移する', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle();
@@ -45,7 +45,7 @@ void main() {
   });
 
   testWidgets('新規メモを作成して保存すると一覧に反映される', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
     await tester.pumpAndSettle();
