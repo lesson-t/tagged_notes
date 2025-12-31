@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
-import '../fakes/fake_note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
@@ -14,10 +14,9 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
-  final repo = FakeNoteRepository(initial: initalNotes);
-
-  // 位置引数（main.dart で NoteProvider(repo)）
+NoteProvider _createProvider() {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
   return NoteProvider(repo);
 }
 
@@ -27,7 +26,7 @@ Future<void> _seedOneNote(NoteProvider provider) async {
 
 void main() {
   testWidgets('詳細→編集→保存で詳細画面の表示が更新される', (tester) async {
-    final provider = _createProviderWithFakeRepo(initalNotes: []);
+    final provider = _createProvider();
     await _seedOneNote(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
