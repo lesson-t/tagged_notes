@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
-import '../fakes/fake_note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 Widget _buildTestApp({required NoteProvider provider}) {
   return ChangeNotifierProvider.value(
@@ -15,10 +15,9 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
-  final repo = FakeNoteRepository(initial: initalNotes);
-
-  // 位置引数（main.dart で NoteProvider(repo)）
+NoteProvider _createProvider() {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
   return NoteProvider(repo);
 }
 
@@ -30,7 +29,7 @@ Future<void> _seedNotes(NoteProvider provider) async {
 
 void main() {
   testWidgets('初期状態では「すべて」が選択され、全件が表示される', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
     await _seedNotes(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
@@ -49,7 +48,7 @@ void main() {
   });
 
   testWidgets('タグ「仕事」を選択すると仕事メモのみ表示される', (tester) async {
-    final provider = _createProviderWithFakeRepo();
+    final provider = _createProvider();
     await _seedNotes(provider);
 
     await tester.pumpWidget(_buildTestApp(provider: provider));
