@@ -1,16 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
-// import '../fakes/fake_note_repository.dart';
 import '../fakes/in_memory_store.dart';
 
-void main() {
-  NoteProvider _createProvider() {
-    final store = InMemoryStore();
-    final repo = NoteRepository(store);
-    return NoteProvider(repo);
-  }
+NoteProvider _createProvider() {
+  final store = InMemoryStore();
+  final repo = NoteRepository(store);
+  return NoteProvider(repo);
+}
 
+void main() {
   test('addNote: titleをtrimして追加し、saveが呼ばれる', () async {
     final provider = _createProvider();
 

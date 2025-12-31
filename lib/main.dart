@@ -17,9 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<KeyValueStore>(
-          create: (_) => SharedPreferencesStore(),
-        ),
+        Provider<KeyValueStore>(create: (_) => SharedPreferencesStore()),
         Provider<NoteRepository>(
           create: (context) => NoteRepository(context.read<KeyValueStore>()),
         ),

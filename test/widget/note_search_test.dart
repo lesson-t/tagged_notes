@@ -24,7 +24,7 @@ Future<NoteProvider> _createProvider({List<Note>? initialNotes}) async {
   if (initialNotes != null) {
     await repo.save(initialNotes);
   }
-  
+
   return NoteProvider(repo);
 }
 

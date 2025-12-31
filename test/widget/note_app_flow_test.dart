@@ -21,7 +21,6 @@ NoteProvider _createProvider() {
 }
 
 void main() {
-  
   testWidgets('一覧画面が表示され、空状態メッセージが出る', (tester) async {
     final provider = _createProvider();
 
