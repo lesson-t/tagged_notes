@@ -15,13 +15,6 @@ Widget _buildTestApp({required NoteProvider provider}) {
   );
 }
 
-// NoteProvider _createProviderWithFakeRepo({List<Note>? initalNotes}) {
-//   final repo = FakeNoteRepository(initial: initalNotes);
-
-//   // 位置引数（main.dart で NoteProvider(repo)）
-//   return NoteProvider(repo);
-// }
-
 NoteProvider _createProvider() {
   final store = InMemoryStore();
   final repo = NoteRepository(store);
