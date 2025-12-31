@@ -1,24 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
+import '../fakes/in_memory_store.dart';
 
 void main() {
-  late NoteRepository repo;
-
-  setUp(() {
-    // 各テストを独立させる（前の保存内容を残さない）
-    SharedPreferences.setMockInitialValues({});
-    repo = NoteRepository();
-  });
-
   test('save -> load で複数件のノートが復元される', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
     final notes = [
       Note(title: 'A', body: 'bodyA', tag: '仕事'),
       Note(title: 'B', body: 'bodyB', tag: 'プライベート'),
     ];
-
     await repo.save(notes);
+
     final loaded = await repo.load();
 
     expect(loaded.length, 2);
@@ -27,6 +22,9 @@ void main() {
   });
 
   test('isPinned が save -> load で保持される', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
     final n = Note(title: 'A', body: 'bodyA', tag: '仕事');
     n.togglePin(); // pinned = true
 
@@ -38,6 +36,9 @@ void main() {
   });
 
   test('createdAt が save -> load で保持される', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
     final n = Note(title: 'A', body: 'bodyA', tag: '仕事');
 
     await repo.save([n]);
@@ -50,6 +51,9 @@ void main() {
   });
 
   test('空リストを保存すると load も空になる', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
     await repo.save([]);
     final loaded = await repo.load();
 
@@ -57,6 +61,9 @@ void main() {
   });
 
   test('上書き保存すると最新状態で復元される', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
     await repo.save([Note(title: 'A', body: 'bodyA', tag: '仕事')]);
     await repo.save([Note(title: 'B', body: 'bodyB', tag: '仕事')]);
 

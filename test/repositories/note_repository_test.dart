@@ -1,16 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
 
+import '../fakes/in_memory_store.dart';
+
 void main() {
-  setUp(() {
-    // shared_preferences をメモリ上で動かす（端末不要）
-    SharedPreferences.setMockInitialValues({});
-  });
 
   test('save -> load でノートが復元される', () async {
-    final repo = NoteRepository();
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
 
     final notes = [
       Note(title: 't1', body: 'b1', tag: '仕事'),
