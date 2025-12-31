@@ -9,7 +9,6 @@ void main() {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
     return NoteProvider(repo);
-    
   }
 
   test('addNote: titleをtrimして追加し、saveが呼ばれる', () async {
