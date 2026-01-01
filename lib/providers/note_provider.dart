@@ -61,14 +61,9 @@ class NoteProvider with ChangeNotifier {
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    // final note = _notes.firstWhere(
-    //   (n) => n.id == id,
-    //   orElse: () => throw Exception('Note not found: id=$id'),
-    // );
-
     final note = findById(id);
     if (note == null) return; // 存在しなければ何もしない
-    
+
     note.togglePin();
     await _repo.save(_notes);
     notifyListeners();
@@ -76,10 +71,8 @@ class NoteProvider with ChangeNotifier {
 
   // ノートの更新（idで指定）
   Future<void> updateNote(int id, String title, String body, String tag) async {
-    final note = _notes.firstWhere(
-      (n) => n.id == id,
-      orElse: () => throw Exception("Note not found: id=$id"),
-    );
+    final note = findById(id);
+    if (note == null) return;
 
     note.update(title: title, body: body, tag: tag);
     await _repo.save(_notes);

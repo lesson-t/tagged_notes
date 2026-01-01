@@ -42,13 +42,13 @@ void main() {
     expect(provider.notes.first.isPinned, isFalse);
   });
 
-  //   test('updateNote: 存在しないidでもクラッシュしない', () async {
-  //   final provider = _createProvider();
-  //   await provider.addNote('t', 'b', '仕事');
+    test('updateNote: 存在しないidでもクラッシュしない', () async {
+    final provider = _createProvider();
+    await provider.addNote('t', 'b', '仕事');
 
-  //   await provider.updateNote(999999, 'new', 'new body', 'その他');
+    await provider.updateNote(999999, 'new', 'new body', 'その他');
 
-  //   // 既存データが壊れていないこと
-  //   expect(provider.notes.first.title, 't');
-  // });
+    // 既存データが壊れていないこと
+    expect(provider.notes.first.title, 't');
+  });
 }
