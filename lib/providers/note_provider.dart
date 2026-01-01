@@ -61,10 +61,14 @@ class NoteProvider with ChangeNotifier {
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    final note = _notes.firstWhere(
-      (n) => n.id == id,
-      orElse: () => throw Exception('Note not found: id=$id'),
-    );
+    // final note = _notes.firstWhere(
+    //   (n) => n.id == id,
+    //   orElse: () => throw Exception('Note not found: id=$id'),
+    // );
+
+    final note = findById(id);
+    if (note == null) return; // 存在しなければ何もしない
+    
     note.togglePin();
     await _repo.save(_notes);
     notifyListeners();

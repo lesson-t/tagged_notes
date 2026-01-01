@@ -32,15 +32,15 @@ void main() {
     expect(provider.notes.length, 1);
   });
 
-  // test('togglePin: 存在しないidでもクラッシュしない', () async {
-  //   final provider = _createProvider();
-  //   await provider.addNote('t', 'b', '仕事');
+  test('togglePin: 存在しないidでもクラッシュしない', () async {
+    final provider = _createProvider();
+    await provider.addNote('t', 'b', '仕事');
 
-  //   await provider.togglePin(999999);
+    await provider.togglePin(999999);
 
-  //   // 既存データが壊れていないこと
-  //   expect(provider.notes.first.isPinned, isFalse);
-  // });
+    // 既存データが壊れていないこと
+    expect(provider.notes.first.isPinned, isFalse);
+  });
 
   //   test('updateNote: 存在しないidでもクラッシュしない', () async {
   //   final provider = _createProvider();
