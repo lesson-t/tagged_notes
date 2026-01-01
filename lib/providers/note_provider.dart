@@ -54,7 +54,11 @@ class NoteProvider with ChangeNotifier {
 
   // 削除
   Future<void> deleteNote(int id) async {
+    final before = _notes.length;
+
     _notes.removeWhere((n) => n.id == id);
+    if (_notes.length == before) return;
+
     await _repo.save(_notes);
     notifyListeners();
   }
