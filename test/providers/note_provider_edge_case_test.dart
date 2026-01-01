@@ -42,7 +42,7 @@ void main() {
     expect(provider.notes.first.isPinned, isFalse);
   });
 
-    test('updateNote: 存在しないidでもクラッシュしない', () async {
+  test('updateNote: 存在しないidでもクラッシュしない', () async {
     final provider = _createProvider();
     await provider.addNote('t', 'b', '仕事');
 

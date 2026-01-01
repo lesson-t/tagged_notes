@@ -34,8 +34,8 @@ Future<void> openSearchAndSearch(WidgetTester tester, String query) async {
   await tester.pumpAndSettle();
 
   final searchBtn = find.descendant(
-    of: dialog, 
-    matching: find.widgetWithText(TextButton, '検索')
+    of: dialog,
+    matching: find.widgetWithText(TextButton, '検索'),
   );
   await tester.tap(searchBtn);
   await tester.pumpAndSettle();
