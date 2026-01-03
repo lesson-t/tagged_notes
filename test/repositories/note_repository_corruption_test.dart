@@ -42,6 +42,20 @@ void main() {
 
     final loaded = await repo.load();
     expect(loaded.length, 1);
-    expect(loaded[0].title, 'A');
+    expect(loaded.first.title, 'A');
+  });
+
+  test('load: Mapでも必須キー欠損の要素はスキップ（fromMapが例外を投げる前提）', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    final ok = jsonEncode(Note(title: 'A', body: 'b', tag: '仕事').toMap());
+    final missing = jsonEncode({'id': 999}); // title等が欠損
+
+    await store.setStringList('notes', [ok, missing]);
+
+    final loaded = await repo.load();
+    expect(loaded.length, 1);
+    expect(loaded.first.title, 'A');
   });
 }
