@@ -37,5 +37,4 @@ class NoteRepository {
 
     return result;
   }
-
 }

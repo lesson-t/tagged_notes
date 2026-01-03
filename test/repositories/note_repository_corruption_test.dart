@@ -48,7 +48,7 @@ void main() {
     final repo = NoteRepository(store);
 
     final ok = jsonEncode(Note(title: 'A', body: 'b', tag: '仕事').toMap());
-    final notMap = jsonEncode([1, 2,3]); // List
+    final notMap = jsonEncode([1, 2, 3]); // List
 
     await store.setStringList(storageKey, [ok, notMap]);
 
