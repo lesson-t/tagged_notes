@@ -6,12 +6,24 @@ import 'package:tagged_notes/repositories/note_repository.dart';
 
 import '../fakes/in_memory_store.dart';
 
+const storageKey = 'notes';
+
 void main() {
   test('load: nullなら空リスト', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
 
     final loaded = await repo.load();
+    expect(loaded, isEmpty);
+  });
+
+  test('load: 空リストが保存されている場合も空リスト', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    await store.setStringList(storageKey, []);
+    final loaded = await repo.load();
+
     expect(loaded, isEmpty);
   });
 
@@ -23,7 +35,7 @@ void main() {
     final broken = '{ invalid json';
     final ok2 = jsonEncode(Note(title: 'B', body: 'b', tag: '仕事').toMap());
 
-    await store.setStringList('notes', [ok1, broken, ok2]);
+    await store.setStringList(storageKey, [ok1, broken, ok2]);
 
     final loaded = await repo.load();
     expect(loaded.length, 2);
@@ -38,7 +50,7 @@ void main() {
     final ok = jsonEncode(Note(title: 'A', body: 'b', tag: '仕事').toMap());
     final notMap = jsonEncode([1, 2,3]); // List
 
-    await store.setStringList('notes', [ok, notMap]);
+    await store.setStringList(storageKey, [ok, notMap]);
 
     final loaded = await repo.load();
     expect(loaded.length, 1);
@@ -52,7 +64,7 @@ void main() {
     final ok = jsonEncode(Note(title: 'A', body: 'b', tag: '仕事').toMap());
     final missing = jsonEncode({'id': 999}); // title等が欠損
 
-    await store.setStringList('notes', [ok, missing]);
+    await store.setStringList(storageKey, [ok, missing]);
 
     final loaded = await repo.load();
     expect(loaded.length, 1);
