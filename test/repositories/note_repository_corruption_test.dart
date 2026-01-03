@@ -30,4 +30,18 @@ void main() {
     expect(loaded[0].title, 'A');
     expect(loaded[1].title, 'B');
   });
+
+  test('load: JSONは読めるがMapではない要素はスキップ', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    final ok = jsonEncode(Note(title: 'A', body: 'b', tag: '仕事').toMap());
+    final notMap = jsonEncode([1, 2,3]); // List
+
+    await store.setStringList('notes', [ok, notMap]);
+
+    final loaded = await repo.load();
+    expect(loaded.length, 1);
+    expect(loaded[0].title, 'A');
+  });
 }
