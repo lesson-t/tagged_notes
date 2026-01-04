@@ -32,23 +32,36 @@ class NoteRepository {
     if (jsonList == null || jsonList.isEmpty) return [];
 
     final result = <Note>[];
+    var needsResave = false;
 
     for (final jsonStr in jsonList) {
       try {
         final decoded = jsonDecode(jsonStr);
-
-        // 期待：Map<String, dynamic>
-        if (decoded is! Map<String, dynamic>) {
-          continue; // 型が違う要素はスキップ
-        }
+        // 期待：Map<String, dynamic> 型が違う要素はスキップ
+        if (decoded is! Map<String, dynamic>) continue;
 
         final migrated = _migrateToCurrent(decoded);
         if (migrated == null) continue; //未対応/不正はスキップ
+
+        // migrateが入った（= v0など）なら再保存対象
+        final rawVersion = (decoded['schemaVersion'] is int) ? decoded['schemaVersion'] as int : 0;
+        if (rawVersion != currentSchemaVersion) {
+          needsResave = true;
+        }
 
         result.add(Note.fromMap(migrated));
       } catch (_) {
         // JSON不正 / migration失敗  / fromMap例外などは、その要素だけ捨てる
         continue;
+      }
+    }
+
+    // Self-healing: 読めた分を正規化して保存し直す
+    if (needsResave) {
+      try {
+        await save(result);
+      } catch (_) {
+        // 保存失敗でも load 自体は成功扱いで返す（クラッシュ回避）
       }
     }
 
