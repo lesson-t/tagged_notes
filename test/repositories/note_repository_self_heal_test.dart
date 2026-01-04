@@ -62,4 +62,29 @@ void main() {
     expect(after, isNotNull);
     expect(after, equals([future]));
   });
+
+  test('load: schemaVersionが同じでも欠損補完が起きたらself-healされる', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    final brokenV1 = jsonEncode({
+      'schemaVersion': NoteRepository.currentSchemaVersion,
+      'id': 1,
+      'title': 'v1-but-broken',
+      'body': 'b',
+      'tag': '仕事',
+      'isPinned': false,
+      // createdAt が欠損
+    });
+
+    await store.setStringList(storageKey, [brokenV1]);
+
+    final loaded = await repo.load();
+    expect(loaded.length, 1);
+
+    final saved = await store.getStringList(storageKey);
+    expect(saved, isNotNull);
+    final savedMap = jsonDecode(saved!.first) as Map<String, dynamic>;
+    expect(savedMap.containsKey('createdAt'), isTrue);
+  });
 }
