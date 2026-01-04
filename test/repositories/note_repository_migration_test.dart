@@ -31,4 +31,24 @@ void main() {
     expect(loaded.first.createdAt, isNotNull);
     
   });
+
+  test('load: 未来のschemaVersionはスキップされる（クラッシュしない）', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    final future = jsonEncode({
+      'schemaVersion': 999,
+      'id': 1,
+      'title': 'future',
+      'body': 'b',
+      'tag': '仕事',
+      'isPinned': false,
+      'createdAt': DateTime.now().toIso8601String(),
+    });
+
+    await store.setStringList(storageKey, [future]);
+
+    final loaded = await repo.load();
+    expect(loaded, isEmpty);
+  });
 }
