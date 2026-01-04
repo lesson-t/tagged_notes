@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
 
 import '../fakes/in_memory_store.dart';
@@ -50,5 +51,18 @@ void main() {
 
     final loaded = await repo.load();
     expect(loaded, isEmpty);
+  });
+
+  test('save: schemaVersionが付与されて保存される', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
+
+    final raw = await store.getStringList(storageKey);
+    expect(raw, isNotEmpty);
+    final decoded = jsonDecode(raw!.first) as Map<String, dynamic>;
+
+    expect(decoded['schemaVersion'], NoteRepository.currentSchemaVersion);
   });
 }
