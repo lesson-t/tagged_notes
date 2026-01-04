@@ -76,11 +76,15 @@ class NoteRepository {
   /// Mapを currentSchemaVersion まで段階的に引き上げる
   /// - 返り値null: 復元不能としてスキップ
   /// - didMigrate: version引上げ/欠損補完/正規化 が起きたら true
-  ({Map<String, dynamic> map, bool didMigrate})? _migrateToCurrent(Map<String, dynamic> raw) {
+  ({Map<String, dynamic> map, bool didMigrate})? _migrateToCurrent(
+    Map<String, dynamic> raw,
+  ) {
     var didMigrate = false;
 
     // versionが無い過去データは v0 とみなす
-    final rawVersion = (raw['schemaVersion'] is int) ? raw['schemaVersion'] as int: 0;
+    final rawVersion = (raw['schemaVersion'] is int)
+        ? raw['schemaVersion'] as int
+        : 0;
 
     // 未来のversionはアプリ側が未対応なのでスキップ（安全側）
     if (rawVersion > currentSchemaVersion) return null;
@@ -118,7 +122,9 @@ class NoteRepository {
 
   /// v0(バージョン無し)のデータを v1 に整形
   /// - v0は isPinned/createdAt が無い可能性があるのでデフォルト補完
-  ({Map<String, dynamic> map, bool didMigrate}) _migrateV0toV1(Map<String, dynamic> v0) {
+  ({Map<String, dynamic> map, bool didMigrate}) _migrateV0toV1(
+    Map<String, dynamic> v0,
+  ) {
     var didMigrate = false;
     final v1 = Map<String, dynamic>.from(v0);
 
@@ -145,7 +151,9 @@ class NoteRepository {
 
   /// v1データの「欠損補完・型正規化」用（schemaVersionが同じでも治す）
   /// 将来：createdAtがintだった/空文字だった等の補正を足せる
-  ({Map<String, dynamic> map, bool didMigrate}) _normalizeV1(Map<String, dynamic> v1,) {
+  ({Map<String, dynamic> map, bool didMigrate}) _normalizeV1(
+    Map<String, dynamic> v1,
+  ) {
     var didMigrate = false;
     final normalized = Map<String, dynamic>.from(v1);
 
@@ -158,7 +166,7 @@ class NoteRepository {
       didMigrate = true;
       normalized['createdAt'] = DateTime.now().toIso8601String();
     } else {
-      // 
+      //
       final ca = normalized['createdAt'];
       if (ca is! String || ca.isEmpty) {
         didMigrate = true;
