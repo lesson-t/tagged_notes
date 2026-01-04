@@ -36,4 +36,30 @@ void main() {
     expect(savedMap.containsKey('isPinned'), isTrue);
     expect(savedMap.containsKey('createdAt'), isTrue);
   });
+
+  test('load: 未来versionはスキップされ、self-healで上書きされない', () async {
+    final store = InMemoryStore();
+    final repo = NoteRepository(store);
+
+    final future = jsonEncode({
+      'schemaVersion': 999,
+      'id': 1,
+      'title': 'future',
+      'body': 'b',
+      'tag': '仕事',
+      'isPinned': false,
+      'createdAt': DateTime.now().toIso8601String(),
+    });
+
+    // 未来versionだけ入れておく
+    await store.setStringList(storageKey, [future]);
+
+    final loaded = await repo.load();
+    expect(loaded, isEmpty);
+
+    // ★ self-heal が走っても、空で上書きしないこと
+    final after = await store.getStringList(storageKey);
+    expect(after, isNotNull);
+    expect(after, equals([future]));
+  });
 }
