@@ -14,12 +14,7 @@ void main() {
     final repo = NoteRepository(store);
 
     // v0データ（schemaVersion無し / isPinned無し / createdAt無し を想定）
-    final v0 = jsonEncode({
-      'id': 1,
-      'title': 'old',
-      'body': 'b',
-      'tag': '仕事',
-    });
+    final v0 = jsonEncode({'id': 1, 'title': 'old', 'body': 'b', 'tag': '仕事'});
 
     await store.setStringList(storageKey, [v0]);
 
@@ -30,7 +25,6 @@ void main() {
     // デフォルト補完が効いていること（fromMapが対応している前提）
     expect(loaded.first.isPinned, isFalse);
     expect(loaded.first.createdAt, isNotNull);
-    
   });
 
   test('load: 未来のschemaVersionはスキップされる（クラッシュしない）', () async {

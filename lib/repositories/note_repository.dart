@@ -13,11 +13,10 @@ class NoteRepository {
 
   Future<void> save(List<Note> notes) async {
     final jsonList = notes.map((n) {
-
       final map = n.toMap();
 
       // 保存時に schemaVersion を付与
-      final withVersion = <String, dynamic> {
+      final withVersion = <String, dynamic>{
         'schemaVersion': currentSchemaVersion,
         ...map,
       };
@@ -60,7 +59,9 @@ class NoteRepository {
   /// - 返り値null: 復元不能としてスキップ
   Map<String, dynamic>? _migrateToCurrent(Map<String, dynamic> raw) {
     // versionが無い過去データは v0 とみなす
-    var version = (raw['schemaVersion'] is int) ? raw['schemaVersion'] as int : 0;
+    var version = (raw['schemaVersion'] is int)
+        ? raw['schemaVersion'] as int
+        : 0;
 
     // 未来のversionはアプリ側が未対応なのでスキップ（安全側）
     if (version > currentSchemaVersion) return null;
