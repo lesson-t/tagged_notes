@@ -46,7 +46,7 @@ class NoteRepository {
         final migrated = _migrateToCurrent(decoded);
         if (migrated == null) continue; //未対応/不正はスキップ
 
-        result.add(Note.fromMap(decoded));
+        result.add(Note.fromMap(migrated));
       } catch (_) {
         // JSON不正 / migration失敗  / fromMap例外などは、その要素だけ捨てる
         continue;
