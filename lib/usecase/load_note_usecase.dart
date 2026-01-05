@@ -6,5 +6,12 @@ class LoadNoteUsecase {
 
   LoadNoteUsecase(this._repo);
 
-  Future<List<Note>> execute() => _repo.load();
+  Future<List<Note>> execute() async {
+    final notes = await _repo.load();
+
+    final pinned = notes.where((n) => n.isPinned).toList();
+    final others = notes.where((n) => !n.isPinned).toList();
+
+    return [...pinned, ...others];
+  }
 }

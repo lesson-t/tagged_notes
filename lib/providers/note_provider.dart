@@ -61,7 +61,7 @@ class NoteProvider with ChangeNotifier {
   // }
   Future<void> init() async {
     if (_isInitialized) return;
-    _notes = await _repo.load();
+    await _reload();
     _isInitialized = true;
     notifyListeners();
   }
@@ -80,7 +80,7 @@ class NoteProvider with ChangeNotifier {
   // }
   Future<void> addNote(String title, String body, String tag) async {
     await _add.execute(title: title, body: body, tag: tag);
-    _notes = await _repo.load();
+    await _reload();
     notifyListeners();
   }
 
@@ -96,7 +96,7 @@ class NoteProvider with ChangeNotifier {
   // }
   Future<void> deleteNote(int id) async {
     await _delete.execute(id);
-    _notes = await _repo.load();
+    await _reload();
     notifyListeners();
   }
 
@@ -111,7 +111,7 @@ class NoteProvider with ChangeNotifier {
   // }
   Future<void> togglePin(int id) async {
     await _toggle.execute(id);
-    _notes = await _repo.load();
+    await _reload();
     notifyListeners();
   }
 
