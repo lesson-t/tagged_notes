@@ -13,7 +13,6 @@ class NoteProvider with ChangeNotifier {
   final TogglePinUsecase _toggle;
   final UpdateNoteUsecase _update;
   final LoadNoteUsecase _load;
-  final NoteRepository _repo;
 
   // 内部で持っている Note の一覧
   List<Note> _notes = [];
@@ -22,19 +21,12 @@ class NoteProvider with ChangeNotifier {
   bool _isInitialized = false;
 
   // NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
-  NoteProvider(this._repo)
-    : _add = AddNoteUsecase(_repo),
-      _delete = DeleteNoteUsecase(_repo),
-      _toggle = TogglePinUsecase(_repo),
-      _update = UpdateNoteUsecase(_repo),
-      _load = LoadNoteUsecase(_repo);
-
-  // 一覧取得（ピン付き→それ以外 の順で並び替え）
-  // List<Note> get notes {
-  //   final pinned = _notes.where((n) => n.isPinned).toList();
-  //   final others = _notes.where((n) => !n.isPinned).toList();
-  //   return [...pinned, ...others];
-  // }
+  NoteProvider(NoteRepository repo)
+    : _add = AddNoteUsecase(repo),
+      _delete = DeleteNoteUsecase(repo),
+      _toggle = TogglePinUsecase(repo),
+      _update = UpdateNoteUsecase(repo),
+      _load = LoadNoteUsecase(repo);
 
   List<Note> get notes => _notes;
 
@@ -46,19 +38,6 @@ class NoteProvider with ChangeNotifier {
   }
 
   // 初期化メソッド
-  // Future<void> init() async {
-  //   if (_isInitialized) return;
-  //   // await loadNotes();
-  //   // _isInitialized = true;
-
-  //   final loaded = await _repo.load();
-  //   _notes
-  //     ..clear()
-  //     ..addAll(loaded);
-
-  //   _isInitialized = true;
-  //   notifyListeners();
-  // }
   Future<void> init() async {
     if (_isInitialized) return;
     await _reload();
@@ -71,13 +50,6 @@ class NoteProvider with ChangeNotifier {
   }
 
   // 追加
-  // Future<void> addNote(String title, String body, String tag) async {
-  //   final trimmedTitle = title.trim();
-  //   if (trimmedTitle.isEmpty) return;
-  //   _notes.add(Note(title: trimmedTitle, body: body, tag: tag));
-  //   await _repo.save(_notes);
-  //   notifyListeners();
-  // }
   Future<void> addNote(String title, String body, String tag) async {
     await _add.execute(title: title, body: body, tag: tag);
     await _reload();
@@ -85,15 +57,6 @@ class NoteProvider with ChangeNotifier {
   }
 
   // 削除
-  // Future<void> deleteNote(int id) async {
-  //   final before = _notes.length;
-
-  //   _notes.removeWhere((n) => n.id == id);
-  //   if (_notes.length == before) return;
-
-  //   await _repo.save(_notes);
-  //   notifyListeners();
-  // }
   Future<void> deleteNote(int id) async {
     await _delete.execute(id);
     await _reload();
@@ -101,14 +64,6 @@ class NoteProvider with ChangeNotifier {
   }
 
   // ピン切り替え
-  // Future<void> togglePin(int id) async {
-  //   final note = findById(id);
-  //   if (note == null) return; // 存在しなければ何もしない
-
-  //   note.togglePin();
-  //   await _repo.save(_notes);
-  //   notifyListeners();
-  // }
   Future<void> togglePin(int id) async {
     await _toggle.execute(id);
     await _reload();
@@ -116,14 +71,6 @@ class NoteProvider with ChangeNotifier {
   }
 
   // ノートの更新（idで指定）
-  // Future<void> updateNote(int id, String title, String body, String tag) async {
-  //   final note = findById(id);
-  //   if (note == null) return;
-
-  //   note.update(title: title, body: body, tag: tag);
-  //   await _repo.save(_notes);
-  //   notifyListeners();
-  // }
   Future<void> updateNote(int id, String title, String body, String tag) async {
     await _update.execute(id: id, title: title, body: body, tag: tag);
     await _reload();
