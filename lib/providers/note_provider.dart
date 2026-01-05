@@ -3,12 +3,16 @@ import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/usecase/add_note_usecase.dart';
 import 'package:tagged_notes/usecase/delete_note_usecase.dart';
+import 'package:tagged_notes/usecase/load_note_usecase.dart';
 import 'package:tagged_notes/usecase/toggle_pin_usecase.dart';
+import 'package:tagged_notes/usecase/update_note_usecase.dart';
 
 class NoteProvider with ChangeNotifier {
   final AddNoteUsecase _add;
   final DeleteNoteUsecase _delete;
   final TogglePinUsecase _toggle;
+  final UpdateNoteUsecase _update;
+  final LoadNoteUsecase _load;
   final NoteRepository _repo;
 
   // 内部で持っている Note の一覧
@@ -21,7 +25,9 @@ class NoteProvider with ChangeNotifier {
   NoteProvider(this._repo)
     : _add = AddNoteUsecase(_repo),
       _delete = DeleteNoteUsecase(_repo),
-      _toggle = TogglePinUsecase(_repo);
+      _toggle = TogglePinUsecase(_repo),
+      _update = UpdateNoteUsecase(_repo),
+      _load = LoadNoteUsecase(_repo);
 
   // 一覧取得（ピン付き→それ以外 の順で並び替え）
   // List<Note> get notes {
@@ -58,6 +64,10 @@ class NoteProvider with ChangeNotifier {
     _notes = await _repo.load();
     _isInitialized = true;
     notifyListeners();
+  }
+
+  Future<void> _reload() async {
+    _notes = await _load.execute();
   }
 
   // 追加
@@ -106,12 +116,17 @@ class NoteProvider with ChangeNotifier {
   }
 
   // ノートの更新（idで指定）
-  Future<void> updateNote(int id, String title, String body, String tag) async {
-    final note = findById(id);
-    if (note == null) return;
+  // Future<void> updateNote(int id, String title, String body, String tag) async {
+  //   final note = findById(id);
+  //   if (note == null) return;
 
-    note.update(title: title, body: body, tag: tag);
-    await _repo.save(_notes);
+  //   note.update(title: title, body: body, tag: tag);
+  //   await _repo.save(_notes);
+  //   notifyListeners();
+  // }
+  Future<void> updateNote(int id, String title, String body, String tag) async {
+    await _update.execute(id: id, title: title, body: body, tag: tag);
+    await _reload();
     notifyListeners();
   }
 }
