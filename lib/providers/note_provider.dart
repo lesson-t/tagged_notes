@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
+import 'package:tagged_notes/usecase/add_note_usecase.dart';
+import 'package:tagged_notes/usecase/delete_note_usecase.dart';
+import 'package:tagged_notes/usecase/load_note_usecase.dart';
+import 'package:tagged_notes/usecase/toggle_pin_usecase.dart';
+import 'package:tagged_notes/usecase/update_note_usecase.dart';
 
 class NoteProvider with ChangeNotifier {
-  final NoteRepository _repo;
+  final AddNoteUsecase _add;
+  final DeleteNoteUsecase _delete;
+  final TogglePinUsecase _toggle;
+  final UpdateNoteUsecase _update;
+  final LoadNoteUsecase _load;
 
   // 内部で持っている Note の一覧
-  final List<Note> _notes = [];
+  List<Note> _notes = [];
 
   // 初期化済みかどうかのフラグ（複数回 init() が呼ばれても安全にするため）
   bool _isInitialized = false;
 
   // NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
-  NoteProvider(this._repo);
+  NoteProvider(NoteRepository repo)
+    : _add = AddNoteUsecase(repo),
+      _delete = DeleteNoteUsecase(repo),
+      _toggle = TogglePinUsecase(repo),
+      _update = UpdateNoteUsecase(repo),
+      _load = LoadNoteUsecase(repo);
 
-  // 一覧取得（ピン付き→それ以外 の順で並び替え）
-  List<Note> get notes {
-    final pinned = _notes.where((n) => n.isPinned).toList();
-    final others = _notes.where((n) => !n.isPinned).toList();
-    return [...pinned, ...others];
-  }
+  List<Note> get notes => _notes;
 
   Note? findById(int id) {
     for (final n in _notes) {
@@ -31,55 +40,40 @@ class NoteProvider with ChangeNotifier {
   // 初期化メソッド
   Future<void> init() async {
     if (_isInitialized) return;
-    // await loadNotes();
-    // _isInitialized = true;
-
-    final loaded = await _repo.load();
-    _notes
-      ..clear()
-      ..addAll(loaded);
-
+    await _reload();
     _isInitialized = true;
     notifyListeners();
   }
 
+  Future<void> _reload() async {
+    _notes = await _load.execute();
+  }
+
   // 追加
   Future<void> addNote(String title, String body, String tag) async {
-    final trimmedTitle = title.trim();
-    if (trimmedTitle.isEmpty) return;
-    _notes.add(Note(title: trimmedTitle, body: body, tag: tag));
-    await _repo.save(_notes);
+    await _add.execute(title: title, body: body, tag: tag);
+    await _reload();
     notifyListeners();
   }
 
   // 削除
   Future<void> deleteNote(int id) async {
-    final before = _notes.length;
-
-    _notes.removeWhere((n) => n.id == id);
-    if (_notes.length == before) return;
-
-    await _repo.save(_notes);
+    await _delete.execute(id);
+    await _reload();
     notifyListeners();
   }
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    final note = findById(id);
-    if (note == null) return; // 存在しなければ何もしない
-
-    note.togglePin();
-    await _repo.save(_notes);
+    await _toggle.execute(id);
+    await _reload();
     notifyListeners();
   }
 
   // ノートの更新（idで指定）
   Future<void> updateNote(int id, String title, String body, String tag) async {
-    final note = findById(id);
-    if (note == null) return;
-
-    note.update(title: title, body: body, tag: tag);
-    await _repo.save(_notes);
+    await _update.execute(id: id, title: title, body: body, tag: tag);
+    await _reload();
     notifyListeners();
   }
 }
