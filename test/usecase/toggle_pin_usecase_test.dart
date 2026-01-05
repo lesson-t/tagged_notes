@@ -28,7 +28,7 @@ void main() {
     expect(after2.first.isPinned, isFalse);
   });
 
-    test('execute: 存在しないidでもクラッシュせずno-op', () async {
+  test('execute: 存在しないidでもクラッシュせずno-op', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
     final uc = TogglePinUsecase(repo);

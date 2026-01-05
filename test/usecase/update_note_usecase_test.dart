@@ -26,7 +26,7 @@ void main() {
     expect(after.first.tag, 'その他');
   });
 
-    test('execute: 存在しないidでもクラッシュせずno-op', () async {
+  test('execute: 存在しないidでもクラッシュせずno-op', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
     final uc = UpdateNoteUsecase(repo);

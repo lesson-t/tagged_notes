@@ -23,7 +23,7 @@ void main() {
     expect(loaded.last.title, 'A');
   });
 
-    test('execute: pinnedが複数ある場合は pinned群→others群 の順', () async {
+  test('execute: pinnedが複数ある場合は pinned群→others群 の順', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
     final uc = LoadNoteUsecase(repo);
