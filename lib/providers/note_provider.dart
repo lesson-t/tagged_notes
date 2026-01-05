@@ -3,10 +3,12 @@ import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/usecase/add_note_usecase.dart';
 import 'package:tagged_notes/usecase/delete_note_usecase.dart';
+import 'package:tagged_notes/usecase/toggle_pin_usecase.dart';
 
 class NoteProvider with ChangeNotifier {
   final AddNoteUsecase _add;
   final DeleteNoteUsecase _delete;
+  final TogglePinUsecase _toggle;
   final NoteRepository _repo;
 
   // 内部で持っている Note の一覧
@@ -18,7 +20,8 @@ class NoteProvider with ChangeNotifier {
   // NoteProvider({NoteRepository? repo}) : _repo = repo ?? NoteRepository();
   NoteProvider(this._repo)
     : _add = AddNoteUsecase(_repo),
-      _delete = DeleteNoteUsecase(_repo);
+      _delete = DeleteNoteUsecase(_repo),
+      _toggle = TogglePinUsecase(_repo);
 
   // 一覧取得（ピン付き→それ以外 の順で並び替え）
   // List<Note> get notes {
@@ -88,12 +91,17 @@ class NoteProvider with ChangeNotifier {
   }
 
   // ピン切り替え
-  Future<void> togglePin(int id) async {
-    final note = findById(id);
-    if (note == null) return; // 存在しなければ何もしない
+  // Future<void> togglePin(int id) async {
+  //   final note = findById(id);
+  //   if (note == null) return; // 存在しなければ何もしない
 
-    note.togglePin();
-    await _repo.save(_notes);
+  //   note.togglePin();
+  //   await _repo.save(_notes);
+  //   notifyListeners();
+  // }
+  Future<void> togglePin(int id) async {
+    await _toggle.execute(id);
+    _notes = await _repo.load();
     notifyListeners();
   }
 
