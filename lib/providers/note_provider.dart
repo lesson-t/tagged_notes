@@ -65,7 +65,7 @@ class NoteProvider with ChangeNotifier {
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    await _toggle.execute(id);
+    await _toggle.execute(id: id);
     await _reload();
     notifyListeners();
   }
