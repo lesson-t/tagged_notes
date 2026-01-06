@@ -5,7 +5,7 @@ class DeleteNoteUsecase {
 
   DeleteNoteUsecase(this._repo);
 
-  Future<void> execute(int id) async {
+  Future<void> execute({required int id}) async {
     final notes = await _repo.load();
     notes.removeWhere((n) => n.id == id);
     await _repo.save(notes);

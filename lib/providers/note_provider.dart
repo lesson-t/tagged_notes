@@ -58,7 +58,7 @@ class NoteProvider with ChangeNotifier {
 
   // 削除
   Future<void> deleteNote(int id) async {
-    await _delete.execute(id);
+    await _delete.execute(id: id);
     await _reload();
     notifyListeners();
   }

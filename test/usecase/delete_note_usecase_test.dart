@@ -21,7 +21,7 @@ void main() {
     final before = await repo.load();
     final deleteId = before.firstWhere((n) => n.title == 'B').id;
 
-    await uc.execute(deleteId);
+    await uc.execute(id: deleteId);
 
     final after = await repo.load();
     expect(after.any((n) => n.title == 'B'), isFalse);
@@ -35,7 +35,7 @@ void main() {
 
     await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
 
-    await uc.execute(999999);
+    await uc.execute(id: 999999);
 
     final after = await repo.load();
     expect(after, hasLength(1));
