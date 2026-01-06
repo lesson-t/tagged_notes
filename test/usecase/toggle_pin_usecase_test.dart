@@ -17,12 +17,12 @@ void main() {
 
     expect(before.first.isPinned, isFalse);
 
-    await uc.execute(id);
+    await uc.execute(id: id);
 
     final after1 = await repo.load();
     expect(after1.first.isPinned, isTrue);
 
-    await uc.execute(id);
+    await uc.execute(id: id);
 
     final after2 = await repo.load();
     expect(after2.first.isPinned, isFalse);
@@ -35,7 +35,7 @@ void main() {
 
     await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
 
-    await uc.execute(999999);
+    await uc.execute(id: 999999);
 
     final after = await repo.load();
     expect(after, hasLength(1));

@@ -58,14 +58,14 @@ class NoteProvider with ChangeNotifier {
 
   // 削除
   Future<void> deleteNote(int id) async {
-    await _delete.execute(id);
+    await _delete.execute(id: id);
     await _reload();
     notifyListeners();
   }
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    await _toggle.execute(id);
+    await _toggle.execute(id: id);
     await _reload();
     notifyListeners();
   }

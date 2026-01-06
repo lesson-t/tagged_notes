@@ -5,7 +5,7 @@ class TogglePinUsecase {
 
   TogglePinUsecase(this._repo);
 
-  Future<void> execute(int id) async {
+  Future<void> execute({required int id}) async {
     final notes = await _repo.load();
     final note = notes.where((n) => n.id == id).toList();
 
