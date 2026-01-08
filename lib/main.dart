@@ -21,9 +21,12 @@ class MyApp extends StatelessWidget {
         Provider<NoteRepository>(
           create: (context) => NoteRepository(context.read<KeyValueStore>()),
         ),
-        ChangeNotifierProxyProvider<NoteRepository, NoteProvider>(
+        // ChangeNotifierProxyProvider<NoteRepository, NoteProvider>(
+        //   create: (context) => NoteProvider(context.read<NoteRepository>()),
+        //   update: (context, repo, previous) => previous ?? NoteProvider(repo),
+        // ),
+        ChangeNotifierProvider<NoteProvider>(
           create: (context) => NoteProvider(context.read<NoteRepository>()),
-          update: (context, repo, previous) => previous ?? NoteProvider(repo),
         ),
       ],
 
