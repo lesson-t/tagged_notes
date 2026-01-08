@@ -40,40 +40,41 @@ class NoteProvider with ChangeNotifier {
   // 初期化メソッド
   Future<void> init() async {
     if (_isInitialized) return;
-    await _reload();
+    _notes = await _load.execute();
+    // await _reload();
     _isInitialized = true;
     notifyListeners();
   }
 
-  Future<void> _reload() async {
-    _notes = await _load.execute();
-  }
+  // Future<void> _reload() async {
+  //   _notes = await _load.execute();
+  // }
 
   // 追加
   Future<void> addNote(String title, String body, String tag) async {
-    await _add.execute(title: title, body: body, tag: tag);
-    await _reload();
+    _notes = await _add.execute(title: title, body: body, tag: tag);
+    // await _reload();
     notifyListeners();
   }
 
   // 削除
   Future<void> deleteNote(int id) async {
-    await _delete.execute(id: id);
-    await _reload();
+    _notes = await _delete.execute(id: id);
+    // await _reload();
     notifyListeners();
   }
 
   // ピン切り替え
   Future<void> togglePin(int id) async {
-    await _toggle.execute(id: id);
-    await _reload();
+    _notes = await _toggle.execute(id: id);
+    // await _reload();
     notifyListeners();
   }
 
   // ノートの更新（idで指定）
   Future<void> updateNote(int id, String title, String body, String tag) async {
-    await _update.execute(id: id, title: title, body: body, tag: tag);
-    await _reload();
+    _notes = await _update.execute(id: id, title: title, body: body, tag: tag);
+    // await _reload();
     notifyListeners();
   }
 }
