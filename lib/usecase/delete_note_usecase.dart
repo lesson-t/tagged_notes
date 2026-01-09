@@ -16,7 +16,7 @@ class DeleteNoteUsecase {
     if (notes.length != before) {
       await _repo.save(notes); // save 1回（条件付き）
     }
-    await _repo.save(notes);
+    // await _repo.save(notes);
 
     return NoteListRules.pinnedFirst(notes);
   }

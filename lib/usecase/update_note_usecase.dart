@@ -22,7 +22,7 @@ class UpdateNoteUsecase {
 
     targets.first.update(title: title.trim(), body: body, tag: tag);
 
-    await _repo.save(notes); // save 1回// save 1回
+    await _repo.save(notes); // save 1回
 
     return NoteListRules.pinnedFirst(notes);
   }
