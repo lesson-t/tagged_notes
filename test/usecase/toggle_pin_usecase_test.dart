@@ -1,44 +1,54 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/usecase/toggle_pin_usecase.dart';
 
 import '../fakes/in_memory_store.dart';
+import '../helpers/usecase_test_factory.dart';
 
 void main() {
-  test('execute: isPinnedが反転して保存される', () async {
+  test('execute: isPinnedが反転し、返り値に反映される', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = TogglePinUsecase(repo);
 
-    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
-    final before = await repo.load();
-    final id = before.first.id;
+    final idA = initial.first.id;
 
-    expect(before.first.isPinned, isFalse);
+    final afterOn = await uc.execute(id: idA);
+    final a1 = afterOn.firstWhere((n) => n.id == idA);
+    expect(a1.isPinned, isTrue);
 
-    await uc.execute(id: id);
-
-    final after1 = await repo.load();
-    expect(after1.first.isPinned, isTrue);
-
-    await uc.execute(id: id);
-
-    final after2 = await repo.load();
-    expect(after2.first.isPinned, isFalse);
+    final afterOff = await uc.execute(id: idA);
+    final a2 = afterOff.firstWhere((n) => n.id == idA);
+    expect(a2.isPinned, isFalse);
   });
 
-  test('execute: 存在しないidでもクラッシュせずno-op', () async {
+  test('execute: pinnedが先頭に来る（返り値順序）', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [
+      Note(title: 'A', body: 'A', tag: '仕事'),
+      Note(title: 'B', body: 'B', tag: '仕事'),
+    ];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = TogglePinUsecase(repo);
 
-    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
+    final idB = initial[1].id;
 
-    await uc.execute(id: 999999);
+    final after = await uc.execute(id: idB);
 
-    final after = await repo.load();
-    expect(after, hasLength(1));
-    expect(after.first.isPinned, isFalse);
+    expect(after.first.id, idB);
+    expect(after.first.isPinned, isTrue);
+  });
+
+  test('execute: 存在しないidでも落ちず、現状の一覧を返す', () async {
+    final store = InMemoryStore();
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
+    final uc = TogglePinUsecase(repo);
+
+    final result = await uc.execute(id: 999999);
+
+    expect(result, hasLength(1));
+    expect(result.first.title, 'A');
   });
 }

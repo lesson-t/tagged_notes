@@ -1,44 +1,37 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/usecase/delete_note_usecase.dart';
 
 import '../fakes/in_memory_store.dart';
+import '../helpers/usecase_test_factory.dart';
 
 void main() {
   test('execute: 指定idのノートが削除される', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [
+      Note(title: 'A', body: 'A', tag: '仕事'),
+      Note(title: 'B', body: 'B', tag: '仕事'),
+    ];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = DeleteNoteUsecase(repo);
 
-    // 事前に保存しておく（UseCase単体なのでProviderは使わない）
+    final idA = initial.first.id; // Noteが自動採番でidを持つ
+    final result = await uc.execute(id: idA);
 
-    await repo.save([
-      Note(title: 'A', body: 'b', tag: '仕事'),
-      Note(title: 'B', body: 'b', tag: '仕事'),
-    ]);
-
-    final before = await repo.load();
-    final deleteId = before.firstWhere((n) => n.title == 'B').id;
-
-    await uc.execute(id: deleteId);
-
-    final after = await repo.load();
-    expect(after.any((n) => n.title == 'B'), isFalse);
-    expect(after.any((n) => n.title == 'A'), isTrue);
+    expect(result.any((n) => n.id == idA), isFalse);
+    expect(result, hasLength(1));
+    expect(result.first.title, 'B');
   });
 
-  test('execute: 存在しないidでもクラッシュせずno-op', () async {
+  test('execute: 存在しないidでも落ちず、現状の一覧を返す(no-op)', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = DeleteNoteUsecase(repo);
 
-    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
+    final result = await uc.execute(id: 999999);
 
-    await uc.execute(id: 999999);
-
-    final after = await repo.load();
-    expect(after, hasLength(1));
-    expect(after.first.title, 'A');
+    expect(result, hasLength(1));
+    expect(result.first.title, 'A');
   });
 }
