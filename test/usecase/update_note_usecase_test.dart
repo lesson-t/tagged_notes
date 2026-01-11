@@ -1,42 +1,40 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/usecase/update_note_usecase.dart';
 
 import '../fakes/in_memory_store.dart';
+import '../helpers/usecase_test_factory.dart';
 
 void main() {
-  test('execute: 指定idのtitle/body/tagが更新され保存される', () async {
+  test('execute: 指定idのtitle/body/tagが更新され、返り値に反映される', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [
+      Note(title: 'A', body: 'A', tag: '仕事'),
+    ];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = UpdateNoteUsecase(repo);
 
-    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
-    final before = await repo.load();
-    final id = before.first.id;
+    final idA = initial.first.id;
 
-    expect(before.first.isPinned, isFalse);
+    final after = await uc.execute(id: idA, title: '更新後', body: '本文2', tag: 'プライベート');
 
-    await uc.execute(id: id, title: 'new', body: 'new body', tag: 'その他');
-
-    final after = await repo.load();
-    expect(after, hasLength(1));
-    expect(after.first.title, 'new');
-    expect(after.first.body, 'new body');
-    expect(after.first.tag, 'その他');
+    final updated = after.firstWhere((n) => n.id == idA);
+    expect(updated.title, '更新後');
+    expect(updated.body, '本文2');
+    expect(updated.tag, 'プライベート');
   });
 
   test('execute: 存在しないidでもクラッシュせずno-op', () async {
     final store = InMemoryStore();
-    final repo = NoteRepository(store);
+    final initial = [
+      Note(title: 'A', body: 'A', tag: '仕事'),
+    ];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = UpdateNoteUsecase(repo);
 
-    await repo.save([Note(title: 'A', body: 'b', tag: '仕事')]);
+    final result = await uc.execute(id: 999999, title: '更新後', body: '本文2', tag: '仕事');
 
-    await uc.execute(id: 999999, title: 'x', body: 'y', tag: 'その他');
-
-    final after = await repo.load();
-    expect(after, hasLength(1));
-    expect(after.first.title, 'A');
+    expect(result, hasLength(1));
+    expect(result.first.title, 'A');
   });
 }
