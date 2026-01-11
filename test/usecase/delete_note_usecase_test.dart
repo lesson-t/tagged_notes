@@ -25,9 +25,7 @@ void main() {
 
   test('execute: 存在しないidでも落ちず、現状の一覧を返す(no-op)', () async {
     final store = InMemoryStore();
-    final initial = [
-      Note(title: 'A', body: 'A', tag: '仕事'),
-    ];
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = DeleteNoteUsecase(repo);
 

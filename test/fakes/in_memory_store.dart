@@ -6,7 +6,7 @@ class InMemoryStore implements KeyValueStore {
   @override
   Future<List<String>?> getStringList(String key) async {
     final v = _map[key];
-    return  v is  List<String> ? List<String>.from(v) : null;
+    return v is List<String> ? List<String>.from(v) : null;
   }
 
   @override

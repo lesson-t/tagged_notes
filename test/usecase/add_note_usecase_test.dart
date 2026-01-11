@@ -22,9 +22,7 @@ void main() {
 
   test('execute: titleが空なら追加せず、現状の一覧を返す', () async {
     final store = InMemoryStore();
-    final initial = [
-      Note(title: '既存', body: 'B', tag: '仕事')
-    ];
+    final initial = [Note(title: '既存', body: 'B', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = AddNoteUsecase(repo);
 
@@ -34,11 +32,9 @@ void main() {
     expect(result.first.title, '既存');
   });
 
-    test('execute: pinnedが先頭になる（返り値順序）', () async {
+  test('execute: pinnedが先頭になる（返り値順序）', () async {
     final store = InMemoryStore();
-    final initial = [
-      Note(title: 'A', body: 'A', tag: '仕事')
-    ];
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
     final add = AddNoteUsecase(repo);
 

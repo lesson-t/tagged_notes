@@ -8,15 +8,18 @@ import '../helpers/usecase_test_factory.dart';
 void main() {
   test('execute: 指定idのtitle/body/tagが更新され、返り値に反映される', () async {
     final store = InMemoryStore();
-    final initial = [
-      Note(title: 'A', body: 'A', tag: '仕事'),
-    ];
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = UpdateNoteUsecase(repo);
 
     final idA = initial.first.id;
 
-    final after = await uc.execute(id: idA, title: '更新後', body: '本文2', tag: 'プライベート');
+    final after = await uc.execute(
+      id: idA,
+      title: '更新後',
+      body: '本文2',
+      tag: 'プライベート',
+    );
 
     final updated = after.firstWhere((n) => n.id == idA);
     expect(updated.title, '更新後');
@@ -26,13 +29,16 @@ void main() {
 
   test('execute: 存在しないidでもクラッシュせずno-op', () async {
     final store = InMemoryStore();
-    final initial = [
-      Note(title: 'A', body: 'A', tag: '仕事'),
-    ];
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
     final uc = UpdateNoteUsecase(repo);
 
-    final result = await uc.execute(id: 999999, title: '更新後', body: '本文2', tag: '仕事');
+    final result = await uc.execute(
+      id: 999999,
+      title: '更新後',
+      body: '本文2',
+      tag: '仕事',
+    );
 
     expect(result, hasLength(1));
     expect(result.first.title, 'A');
