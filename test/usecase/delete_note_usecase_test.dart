@@ -6,6 +6,10 @@ import '../fakes/in_memory_store.dart';
 import '../helpers/usecase_test_factory.dart';
 
 void main() {
+  setUp(() {
+    Note.resetCounter();
+  });
+  
   test('execute: 指定idのノートが削除される', () async {
     final store = InMemoryStore();
     final initial = [

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Note {
   final int id; // 一意ID
   String title; // タイトル（必須）
@@ -8,6 +10,9 @@ class Note {
 
   // ID採番用カウンター（アプリ内で共有）
   static int _counter = 0;
+
+  @visibleForTesting
+  static void resetCounter() => _counter = 0;
 
   // コンストラクタ
   Note({required this.title, this.body = "", required this.tag})

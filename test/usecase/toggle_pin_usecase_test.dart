@@ -6,6 +6,10 @@ import '../fakes/in_memory_store.dart';
 import '../helpers/usecase_test_factory.dart';
 
 void main() {
+  setUp(() {
+    Note.resetCounter();
+  });
+  
   test('execute: isPinnedが反転し、返り値に反映される', () async {
     final store = InMemoryStore();
     final initial = [Note(title: 'A', body: 'A', tag: '仕事')];

@@ -7,6 +7,10 @@ import '../fakes/in_memory_store.dart';
 import '../helpers/usecase_test_factory.dart';
 
 void main() {
+  setUp(() {
+    Note.resetCounter();
+  });
+  
   test('execute: titleをtrimして保存される', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
