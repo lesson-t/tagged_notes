@@ -50,4 +50,18 @@ void main() {
     // Addの返り値順は pinnedFirst適用済みであることだけ確認する（=落ちない）
     expect(afterAdd, hasLength(2));
   });
+
+      test('execute: 既存にpinnedがある場合、返り値でpinnedが先頭のまま', () async {
+    final store = InMemoryStore();
+    final pinned = Note(title: 'P', body: '', tag: '仕事')..togglePin();
+    final other = Note(title: 'O', body: '', tag: '仕事');
+
+    final repo = await createRepoSeeded(store, initialNotes: [other, pinned]);
+    final uc = AddNoteUsecase(repo);
+
+    final result = await uc.execute(title: 'New', body: 'B', tag: '仕事');
+
+    expect(result.first.isPinned, isTrue);
+    expect(result.first.title, 'P');
+  });
 }
