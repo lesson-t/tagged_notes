@@ -20,8 +20,13 @@ class UpdateNoteUsecase {
       return NoteListRules.pinnedFirst(notes);
     }
 
-    targets.first.update(title: title.trim(), body: body, tag: tag);
+    final trimmed = title.trim();
+    // 追加：空タイトルは no-op（現状維持）
+    if (trimmed.isEmpty) {
+      return NoteListRules.pinnedFirst(notes);
+    }
 
+    targets.first.update(title: trimmed, body: body, tag: tag);
     await _repo.save(notes); // save 1回
 
     return NoteListRules.pinnedFirst(notes);

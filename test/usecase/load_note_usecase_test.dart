@@ -6,6 +6,10 @@ import '../fakes/in_memory_store.dart';
 import '../helpers/usecase_test_factory.dart';
 
 void main() {
+  setUp(() {
+    Note.resetCounter();
+  });
+
   test('execute: pinnedが先頭に来る', () async {
     final store = InMemoryStore();
 
