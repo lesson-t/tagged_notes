@@ -47,4 +47,26 @@ void main() {
     expect(result, hasLength(1));
     expect(result.first.title, 'A');
   });
+
+    test('execute: titleが空（trim後）なら no-op（更新しない）', () async {
+    final store = InMemoryStore();
+    final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
+    final repo = await createRepoSeeded(store, initialNotes: initial);
+    final uc = UpdateNoteUsecase(repo);
+
+    final idA = initial.first.id;
+
+    final after = await uc.execute(
+      id: idA,
+      title: '   ',
+      body: '本文2',
+      tag: 'プライベート',
+    );
+
+    final kept = after.firstWhere((n) => n.id == idA);
+    // 変わっていないことを確認
+    expect(kept.title, 'A');
+    expect(kept.body, 'A');
+    expect(kept.tag, '仕事');
+  });
 }
