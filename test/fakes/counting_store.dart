@@ -12,5 +12,4 @@ class CountingStore implements KeyValueStore {
     setCalls++;
     _data[key] = List<String>.from(value);
   }
-
 }

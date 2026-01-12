@@ -10,7 +10,7 @@ void main() {
   setUp(() {
     Note.resetCounter();
   });
-  
+
   test('execute: titleをtrimして保存される', () async {
     final store = InMemoryStore();
     final repo = NoteRepository(store);
@@ -51,7 +51,7 @@ void main() {
     expect(afterAdd, hasLength(2));
   });
 
-      test('execute: 既存にpinnedがある場合、返り値でpinnedが先頭のまま', () async {
+  test('execute: 既存にpinnedがある場合、返り値でpinnedが先頭のまま', () async {
     final store = InMemoryStore();
     final pinned = Note(title: 'P', body: '', tag: '仕事')..togglePin();
     final other = Note(title: 'O', body: '', tag: '仕事');

@@ -10,7 +10,7 @@ void main() {
   setUp(() {
     Note.resetCounter();
   });
-  
+
   test('execute: 指定idのノートが削除される', () async {
     final store = InMemoryStore();
     final initial = [
@@ -40,11 +40,11 @@ void main() {
     expect(result.first.title, 'A');
   });
 
-    test('execute: 存在しないidでは save しない（永続化I/Oなし）', () async {
+  test('execute: 存在しないidでは save しない（永続化I/Oなし）', () async {
     final store = CountingStore();
     Note.resetCounter();
     final repo = await createRepoSeeded(
-      store, 
+      store,
       initialNotes: [Note(title: 'A', body: 'A', tag: '仕事')],
     );
     final uc = DeleteNoteUsecase(repo);
@@ -56,5 +56,4 @@ void main() {
 
     expect(store.setCalls, beforeCalls); // 増えない
   });
-
 }

@@ -9,7 +9,7 @@ void main() {
   setUp(() {
     Note.resetCounter();
   });
-  
+
   test('execute: 指定idのtitle/body/tagが更新され、返り値に反映される', () async {
     final store = InMemoryStore();
     final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
@@ -48,7 +48,7 @@ void main() {
     expect(result.first.title, 'A');
   });
 
-    test('execute: titleが空（trim後）なら no-op（更新しない）', () async {
+  test('execute: titleが空（trim後）なら no-op（更新しない）', () async {
     final store = InMemoryStore();
     final initial = [Note(title: 'A', body: 'A', tag: '仕事')];
     final repo = await createRepoSeeded(store, initialNotes: initial);
