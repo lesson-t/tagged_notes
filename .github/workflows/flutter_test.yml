@@ -24,7 +24,7 @@ jobs:
             - name: Flutter version
               run: flutter --version
 
-            - name: Install dependenceies
+            - name: Install dependencies
               run: flutter pub get
 
             - name: Check formatting
