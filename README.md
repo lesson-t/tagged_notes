@@ -1,54 +1,41 @@
+![Flutter Test](https://github.com/lesson-t/tagged_notes/actions/workflows/flutter_test.yml/badge.svg)
+
 # Tagged Notes
 
-Flutter で作成した **タグ付きメモアプリ** です。  
-シンプルな UI でメモを作成・編集でき、タグフィルタ・検索・ピン留め・永続化に対応しています。
+タグで整理できるシンプルなメモアプリです。検索・ピン留め・永続化に対応し、UseCase/Repository 分離とユニットテスト、CI により品質を担保しています。
 
-## 主な機能
+## Features
+- メモ作成 / 編集 / 削除
+- タグで絞り込み（仕事 / プライベート / その他）
+- キーワード検索（タイトル / 本文）
+- ピン留め（pinned を先頭表示）
+- 永続化（KeyValueStore 抽象化 + SharedPreferences 実装）
 
-- メモの新規作成・編集
-- タグ（仕事 / プライベート / その他）による絞り込み
-- タイトル・本文テキスト検索
-- ピン留め（上部固定表示）
-- SharedPreferences による永続化
-- メモ詳細画面
-- シンプルで読みやすい UI
+## Architecture / Design
+- Provider（ChangeNotifier）を Presentation 層の状態管理として使用
+- UseCase（Application 層）に業務ロジックを集約
+- Repository を通じて永続化へアクセス（KeyValueStore で差し替え可能）
+- 一覧の並び順ルール（pinned 先頭）を共通ルールとして集約し、テストで固定
 
-## 画面イメージ
+## Tech Stack
+- Flutter / Dart
+- state management: Provider
+- persistence: SharedPreferences（KeyValueStore 抽象化）
+- testing: Unit Test（UseCase中心）+ Widget Test（一部）
+- CI: GitHub Actions（format / analyze / test / coverage artifact）
 
-### メモ一覧
+## Directory Structure (overview)
+- `lib/models/`：ドメインモデル（Noteなど）
+- `lib/usecase/`：UseCase（Add/Delete/TogglePin/Update/Load）+ ルール（NoteListRules）
+- `lib/repositories/`：Repository（NoteRepository）
+- `lib/storage/`：KeyValueStore 抽象化 + SharedPreferences 実装
+- `lib/providers/`：Provider（NoteProvider）
+- `lib/screens/`：UI（List/Detail/Edit）
+- `test/`：UseCase のユニットテスト / Widget テスト
 
-
-### メモ詳細
-
-
-### メモ編集
-
-
-## 技術スタック
-
-- Flutter 3.x
-- Provider（状態管理）
-- SharedPreferences（ローカル永続化）
-- intl（日時フォーマット）
-
-## ディレクトリ構成
-lib/
-models/
-note.dart
-providers/
-note_provider.dart
-screens/
-note_list_screen.dart
-note_edit_screen.dart
-note_detail_screen.dart
-widgets/
-note_list_item.dart
-tag_filter_chips.dart
-
-
-## 今後の改善予定
-
-- アーカイブ機能
-- ダークテーマ調整
-- データストアの抽象化（Repository パターン）
-
+## CI
+PR / main push で以下を自動実行します。
+- `dart format --set-exit-if-changed .`
+- `flutter analyze`
+- `flutter test --coverage`
+- coverage HTML を artifact としてアップロード
