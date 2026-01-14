@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/presentation/note_notifier.dart';
-// import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_detail_screen.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
