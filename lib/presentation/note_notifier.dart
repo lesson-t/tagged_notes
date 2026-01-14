@@ -1,10 +1,11 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagged_notes/di/providers.dart';
 import 'package:tagged_notes/models/note.dart';
 
 /// UI からはこの provider だけを見る（Repository/UseCase を直接触らない）
-final noteListProvider = AsyncNotifierProvider<NoteListNotifier, List<Note>>(NoteListNotifier.new);
+final noteListProvider = AsyncNotifierProvider<NoteListNotifier, List<Note>>(
+  NoteListNotifier.new,
+);
 
 class NoteListNotifier extends AsyncNotifier<List<Note>> {
   @override

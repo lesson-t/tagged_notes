@@ -18,17 +18,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tagged Notes',
-        
-    // MultiProvider(
-    //   providers: [
-    //     Provider<KeyValueStore>(create: (_) => SharedPreferencesStore()),
-    //     Provider<NoteRepository>(
-    //       create: (context) => NoteRepository(context.read<KeyValueStore>()),
-    //     ),
-    //     ChangeNotifierProvider<NoteProvider>(
-    //       create: (context) => NoteProvider(context.read<NoteRepository>()),
-    //     ),
-    //   ],
+
+      // MultiProvider(
+      //   providers: [
+      //     Provider<KeyValueStore>(create: (_) => SharedPreferencesStore()),
+      //     Provider<NoteRepository>(
+      //       create: (context) => NoteRepository(context.read<KeyValueStore>()),
+      //     ),
+      //     ChangeNotifierProvider<NoteProvider>(
+      //       create: (context) => NoteProvider(context.read<NoteRepository>()),
+      //     ),
+      //   ],
 
       // ライトテーマ
       theme: ThemeData(
