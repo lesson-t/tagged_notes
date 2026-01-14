@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:provider/provider.dart';
-// import 'package:tagged_notes/providers/note_provider.dart';
-// import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
-// import 'package:tagged_notes/storage/key_value_store.dart';
-// import 'package:tagged_notes/storage/shared_preferences_store.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
