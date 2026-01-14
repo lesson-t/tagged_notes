@@ -24,3 +24,13 @@ Future<void> pumpUntilFound(
   }
   expect(finder, findsOneWidget);
 }
+
+Future<void> setTestSurfaceSize(
+  WidgetTester tester, {
+  Size size = const Size(1200, 900),
+}) async {
+  await tester.binding.setSurfaceSize(size);
+  addTearDown(() async {
+    await tester.binding.setSurfaceSize(null); // 元に戻す
+  });
+}
