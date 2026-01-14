@@ -1,58 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
-import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
-import '../fakes/in_memory_store.dart';
-
-Widget _buildTestApp({required NoteProvider provider}) {
-  return ChangeNotifierProvider.value(
-    value: provider,
-    child: const MaterialApp(home: NoteListScreen()),
-  );
-}
-
-NoteProvider _createProvider() {
-  final store = InMemoryStore();
-  final repo = NoteRepository(store);
-  return NoteProvider(repo);
-}
+import '../helpers/test_app.dart';
 
 void main() {
   testWidgets('一覧画面が表示され、空状態メッセージが出る', (tester) async {
-    final provider = _createProvider();
+    await tester.pumpWidget(buildTestApp(home: const NoteListScreen()));
+    await pumpUntilFound(tester, find.text('Tagged Notes'));
 
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); // init() のmicrotask等を持つ
-
-    expect(find.text('Tagged Notes'), findsOneWidget);
-    expect(find.textContaining('まだメモがありません'), findsOneWidget);
+    // データ0件なら空状態
+    await pumpUntilFound(tester, find.textContaining('まだメモがありません'));
   });
 
   testWidgets('FAB押下で新規メモ画面へ遷移する', (tester) async {
-    final provider = _createProvider();
-
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(buildTestApp(home: const NoteListScreen()));
+    await pumpUntilFound(tester, find.text('Tagged Notes'));
 
     await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     // NoteEditScreen の AppBar タイトル（新規時）
-    expect(find.text('新規メモ'), findsOneWidget);
+    await pumpUntilFound(tester, find.text('新規メモ'));
   });
 
   testWidgets('新規メモを作成して保存すると一覧に反映される', (tester) async {
-    final provider = _createProvider();
-
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(buildTestApp(home: const NoteListScreen()));
+    await pumpUntilFound(tester, find.text('Tagged Notes'));
 
     // 1) FAB -> 新規メモ画面
     await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await pumpUntilFound(tester, find.text('新規メモ'));
 
     // 2) タイトル/本文を入力
     await tester.enterText(find.widgetWithText(TextField, 'タイトル'), 'テストタイトル');
@@ -60,10 +39,12 @@ void main() {
     await tester.pump();
 
     // 3) 保存アイコン押下
-    await tester.tap(find.byIcon(Icons.save));
-    await tester.pumpAndSettle();
+    final saveButton = find.byIcon(Icons.save);
+    await tester.ensureVisible(saveButton);
+    await tester.tap(saveButton);
+    await tester.pump();
 
     // 一覧に戻り、作成したメモが表示される
-    expect(find.text('テストタイトル'), findsOneWidget);
+    await pumpUntilFound(tester, find.text('テストタイトル'));
   });
 }

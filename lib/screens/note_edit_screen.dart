@@ -22,7 +22,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
   late final bool _isEditing;
 
   // ★追加：二重保存防止
-  bool _isSaving = false; 
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -66,7 +66,12 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
 
       if (_isEditing) {
         // 既存メモの更新
-        await notifier.updateNote(id: widget.note!.id, title: title, body: body, tag: tag);
+        await notifier.updateNote(
+          id: widget.note!.id,
+          title: title,
+          body: body,
+          tag: tag,
+        );
       } else {
         // 新規メモの追加
         await notifier.addNote(title: title, body: body, tag: tag);
@@ -77,9 +82,9 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('保存に失敗しました: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('保存に失敗しました: $e')));
       setState(() => _isSaving = false);
     } finally {
       if (mounted) {
@@ -90,19 +95,18 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
         actions: [
           IconButton(
-            icon: _isSaving 
-            ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ) 
-            : const Icon(Icons.save),
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save),
             onPressed: _isSaving ? null : _saveNote, // ★disable
             tooltip: '保存',
           ),
@@ -123,7 +127,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-        
+
               // 本文
               Expanded(
                 child: TextField(
@@ -139,7 +143,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-        
+
               // タグ選択
               Row(
                 children: [

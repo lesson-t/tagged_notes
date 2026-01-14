@@ -8,7 +8,6 @@ import '../fakes/in_memory_store.dart';
 void main() {
   testWidgets('アプリが起動して一覧画面が表示される', (tester) async {
     // アプリ起動
-    // app.main();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

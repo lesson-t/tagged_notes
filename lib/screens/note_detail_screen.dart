@@ -61,7 +61,7 @@ class NoteDetailScreen extends ConsumerWidget {
         final n = note.first;
         final createdAtText = _formatDate(n.createdAt);
 
-        return     Scaffold(
+        return Scaffold(
           appBar: AppBar(
             title: const Text('メモ詳細'),
             actions: [
@@ -122,7 +122,8 @@ class NoteDetailScreen extends ConsumerWidget {
                           Chip(
                             label: Text(n.tag),
                             visualDensity: VisualDensity.compact,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                           ),
                           Text(
                             createdAtText,
@@ -149,7 +150,7 @@ class NoteDetailScreen extends ConsumerWidget {
             ),
           ),
         );
-      }
+      },
     );
   }
 }
