@@ -26,21 +26,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     if (!mounted) return;
-  //     context.read<NoteProvider>().init();
-  //   });
-
-  //   // Future.microtask(() {
-  //   //   context.read<NoteProvider>().init();
-  //   // });
-  // }
-
-  //
   Future<void> _openSearchDialog() async {
     final controller = TextEditingController(text: _searchQuery);
 
@@ -81,8 +66,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   @override
   Widget build(BuildContext context) {
     final notesAsync = ref.watch(noteListProvider);
-    // final provider = context.watch<NoteProvider>();
-    // final notes = provider.notes;
 
     return Scaffold(
       appBar: AppBar(
@@ -168,7 +151,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                                         await ref
                                             .read(noteListProvider.notifier)
                                             .deleteNote(id: note.id);
-                                        // provider.deleteNote(note.id);
                                         Navigator.pop(context);
                                       },
                                       child: const Text('削除'),
@@ -181,7 +163,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                               await ref
                                   .read(noteListProvider.notifier)
                                   .togglePin(id: note.id);
-                              // provider.togglePin(note.id);
                             },
                           );
                         },

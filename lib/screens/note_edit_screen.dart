@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/presentation/note_notifier.dart';
 
-class NoteEditScreen extends StatefulWidget {
+class NoteEditScreen extends ConsumerStatefulWidget {
   final Note? note; // あるときは編集、nullのときは新規
-
   const NoteEditScreen({super.key, this.note});
 
   @override
-  State<NoteEditScreen> createState() => _NoteEditScreenState();
+  ConsumerState<NoteEditScreen> createState() => _NoteEditScreenState();
 }
 
-class _NoteEditScreenState extends State<NoteEditScreen> {
+class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
 
@@ -30,7 +29,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     _isEditing = note != null; // noteがあれば編集モード
 
     if (note != null) {
-      //
       _titleController.text = note.title;
       _bodyController.text = note.body;
       _selectedTag = note.tag;
@@ -56,15 +54,14 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       return;
     }
 
-    // Provider から追加処理を呼ぶ
-    final provider = context.read<NoteProvider>();
+    final notifier = ref.read(noteListProvider.notifier);
 
     if (_isEditing) {
       // 既存メモの更新
-      await provider.updateNote(widget.note!.id, title, body, tag);
+      await notifier.updateNote(id: widget.note!.id, title: title, body: body, tag: tag);
     } else {
       // 新規メモの追加
-      await provider.addNote(title, body, tag);
+      await notifier.addNote(title: title, body: body, tag: tag);
     }
 
     // 非同期中に画面が破棄されていたら何もしない
@@ -76,6 +73,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
