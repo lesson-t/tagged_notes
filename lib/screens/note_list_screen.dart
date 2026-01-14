@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/presentation/note_notifier.dart';
+// import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_detail_screen.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
 import 'package:tagged_notes/widgets/tag_filter_chips.dart';
 
-class NoteListScreen extends StatefulWidget {
+class NoteListScreen extends ConsumerStatefulWidget {
   const NoteListScreen({super.key});
 
   @override
-  State<NoteListScreen> createState() => _NoteListScreenState();
+  ConsumerState<NoteListScreen> createState() => _NoteListScreenState();
 }
 
-class _NoteListScreenState extends State<NoteListScreen> {
+class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   // タグフィルタ用の状態（初期値は すべて ）
   String _selectedTag = 'すべて';
 
@@ -24,19 +26,19 @@ class _NoteListScreenState extends State<NoteListScreen> {
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<NoteProvider>().init();
-    });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (!mounted) return;
+  //     context.read<NoteProvider>().init();
+  //   });
 
-    // Future.microtask(() {
-    //   context.read<NoteProvider>().init();
-    // });
-  }
+  //   // Future.microtask(() {
+  //   //   context.read<NoteProvider>().init();
+  //   // });
+  // }
 
   //
   Future<void> _openSearchDialog() async {
@@ -78,23 +80,9 @@ class _NoteListScreenState extends State<NoteListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<NoteProvider>();
-    final notes = provider.notes;
-
-    // タグに応じて絞り込んだリスト
-    final filteredByTag = _selectedTag == 'すべて'
-        ? notes
-        : notes.where((n) => n.tag == _selectedTag).toList();
-
-    // 検索キーワードでさらに絞り込む
-    final filteredNotes = _searchQuery.isEmpty
-        ? filteredByTag
-        : filteredByTag.where((note) {
-            final q = _searchQuery.toLowerCase();
-            final title = note.title.toLowerCase();
-            final body = note.body.toLowerCase();
-            return title.contains(q) || body.contains(q);
-          }).toList();
+    final notesAsync = ref.watch(noteListProvider);
+    // final provider = context.watch<NoteProvider>();
+    // final notes = provider.notes;
 
     return Scaffold(
       appBar: AppBar(
@@ -106,72 +94,104 @@ class _NoteListScreenState extends State<NoteListScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-
-          TagFilterChips(
-            tags: _tags,
-            selectedTag: _selectedTag,
-            onTagSelected: (tag) {
-              setState(() {
-                _selectedTag = tag;
-              });
-            },
+      body: notesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('読み込みに失敗しました'),
+              const SizedBox(height: 8),
+              Text(e.toString(), textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () async {
+                  await ref.read(noteListProvider.notifier).refresh();
+                },
+                child: const Text('再試行'),
+              ),
+            ],
           ),
+        ),
+        data: (notes) {
+          final filteredNotes = _applyFilters(notes);
 
-          const Divider(height: 1),
+          return Column(
+            children: [
+              const SizedBox(height: 8),
 
-          // フィルタ済みのリスト表示
-          Expanded(
-            child: filteredNotes.isEmpty
-                ? _buildEmptyState(notes)
-                : ListView.builder(
-                    itemCount: filteredNotes.length,
-                    itemBuilder: (context, index) {
-                      final note = filteredNotes[index];
+              TagFilterChips(
+                tags: _tags,
+                selectedTag: _selectedTag,
+                onTagSelected: (tag) {
+                  setState(() {
+                    _selectedTag = tag;
+                  });
+                },
+              ),
 
-                      return NoteListItem(
-                        note: note,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => NoteDetailScreen(noteId: note.id),
-                            ),
+              const Divider(height: 1),
+
+              // フィルタ済みのリスト表示
+              Expanded(
+                child: filteredNotes.isEmpty
+                    ? _buildEmptyState(notes)
+                    : ListView.builder(
+                        itemCount: filteredNotes.length,
+                        itemBuilder: (context, index) {
+                          final note = filteredNotes[index];
+
+                          return NoteListItem(
+                            note: note,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      NoteDetailScreen(noteId: note.id),
+                                ),
+                              );
+                            },
+                            onLongPress: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: const Text('削除しますか？'),
+                                  content: Text(note.title),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('キャンセル'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await ref
+                                            .read(noteListProvider.notifier)
+                                            .deleteNote(id: note.id);
+                                        // provider.deleteNote(note.id);
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('削除'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            onTogglePin: () async {
+                              await ref
+                                  .read(noteListProvider.notifier)
+                                  .togglePin(id: note.id);
+                              // provider.togglePin(note.id);
+                            },
                           );
                         },
-                        onLongPress: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text('削除しますか？'),
-                              content: Text(note.title),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('キャンセル'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    provider.deleteNote(note.id);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('削除'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        onTogglePin: () {
-                          provider.togglePin(note.id);
-                        },
-                      );
-                    },
-                  ),
-          ),
-        ],
+                      ),
+              ),
+            ],
+          );
+        },
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -182,6 +202,24 @@ class _NoteListScreenState extends State<NoteListScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  // タグに応じて絞り込んだリスト
+  List<Note> _applyFilters(List<Note> notes) {
+    final filteredByTag = _selectedTag == 'すべて'
+        ? notes
+        : notes.where((n) => n.tag == _selectedTag).toList();
+
+    if (_searchQuery.isEmpty) return filteredByTag;
+
+    // 検索キーワードでさらに絞り込む
+
+    final q = _searchQuery.toLowerCase();
+    return filteredByTag.where((note) {
+      final title = note.title.toLowerCase();
+      final body = note.body.toLowerCase();
+      return title.contains(q) || body.contains(q);
+    }).toList();
   }
 
   Widget _buildEmptyState(List<Note> allNotes) {
