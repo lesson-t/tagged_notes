@@ -1,160 +1,158 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
 import '../fakes/in_memory_store.dart';
+import '../helpers/test_app.dart';
 
-Widget _buildTestApp({required NoteProvider provider}) {
-  return ChangeNotifierProvider.value(
-    value: provider,
-    child: const MaterialApp(home: NoteListScreen()),
-  );
-}
-
-Future<NoteProvider> _createProvider({List<Note>? initialNotes}) async {
-  final store = InMemoryStore();
+Future<void> _seedNotes(InMemoryStore store) async {
+  Note.resetCounter();
   final repo = NoteRepository(store);
 
-  // ★ 画面init()がloadする前提なので、初期データは repo に保存しておく
-  if (initialNotes != null) {
-    await repo.save(initialNotes);
-  }
-
-  return NoteProvider(repo);
+  final notes = [
+    Note(title: '仕事メモA', body: '本文A', tag: '仕事'),
+    Note(title: '仕事メモB', body: '本文B', tag: '仕事'),
+    Note(title: '私用メモC', body: '本文C', tag: 'プライベート'),
+  ];
+  await repo.save(notes);
 }
 
-Future<void> _seedNotes(NoteProvider provider) async {
-  await provider.addNote('仕事メモA', '本文A', '仕事');
-  await provider.addNote('仕事メモB', '本文B', '仕事');
-  await provider.addNote('私用メモC', '本文C', 'プライベート');
+Future<void> _seedInitialNotes(
+  InMemoryStore store,
+  List<Note> initialNotes,
+) async {
+  Note.resetCounter();
+  final repo = NoteRepository(store);
+  await repo.save(initialNotes);
 }
 
+/// 検索ダイアログを開いて検索実行（ダイアログ配下に限定して操作する）
 Future<void> _openSearchDialogAndSearch(
   WidgetTester tester,
   String query,
 ) async {
-  // 検索アイコン → ダイアログ表示
-  await tester.tap(find.byIcon(Icons.search));
-  await tester.pumpAndSettle();
+  // 検索アイコンを「押せるもの」に限定
+  final searchIcon = find.byIcon(Icons.search).hitTestable();
+  await pumpUntilFound(tester, searchIcon);
+  await tester.tap(searchIcon);
+  await tester.pump(); // ダイアログ描画開始
 
-  // // AlertDialog の中の TextField に文字を入れる
-  final dialogFinder = find.byType(AlertDialog);
-  expect(dialogFinder, findsOneWidget);
+  final dialog = find.byType(AlertDialog).hitTestable();
+  await pumpUntilFound(tester, dialog);
 
-  final textFieldInDialog = find.descendant(
-    of: dialogFinder,
-    matching: find.byType(TextField),
-  );
-  expect(textFieldInDialog, findsOneWidget);
-
-  await tester.enterText(textFieldInDialog, query);
+  final tf = find.descendant(of: dialog, matching: find.byType(TextField));
+  await pumpUntilFound(tester, tf);
+  await tester.enterText(tf, query);
   await tester.pump();
 
-  // AlertDialog の actions 内の「検索」ボタン押下
-  final searchButtonInDialog = find.descendant(
-    of: dialogFinder,
-    matching: find.widgetWithText(TextButton, '検索'),
-  );
-  expect(searchButtonInDialog, findsOneWidget);
+  final searchBtn = find
+      .descendant(of: dialog, matching: find.widgetWithText(TextButton, '検索'))
+      .hitTestable();
 
-  await tester.tap(searchButtonInDialog);
-  await tester.pumpAndSettle();
+  await pumpUntilFound(tester, searchBtn);
+  await tester.tap(searchBtn);
+  await tester.pump(); // 絞り込み反映開始
+
+  // 画面側の rebuild まで少し進める（pumpAndSettle回避）
+  await tester.pump(const Duration(milliseconds: 200));
 }
 
 void main() {
   testWidgets('検索アイコン押下で検索ダイアログが開く', (tester) async {
-    final provider = await _createProvider();
+    await setTestSurfaceSize(tester);
 
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); // init() が走るなら落ち着くまで待つ
+    final store = InMemoryStore();
+    // ダイアログ表示だけなら seed 不要だが、画面が安定するよう最低限 1件入れてもOK
+    await _seedInitialNotes(store, [
+      Note(title: 'メモA', body: '本文A', tag: '仕事'),
+    ]);
 
-    // 検索アイコンをタップ
-    await tester.tap(find.byIcon(Icons.search));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
-    // AlertDialog が表示される
-    expect(find.byType(AlertDialog), findsOneWidget);
+    await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
+
+    // 検索アイコン tap → AlertDialog 表示確認
+    final searchIcon = find.byIcon(Icons.search).hitTestable();
+    await pumpUntilFound(tester, searchIcon);
+    await tester.tap(searchIcon);
+    await tester.pump();
+
+    final dialog = find.byType(AlertDialog).hitTestable();
+    await pumpUntilFound(tester, dialog);
+
     expect(find.text('検索キーワード'), findsOneWidget);
     expect(find.textContaining('タイトルや本文を検索'), findsOneWidget);
   });
 
   testWidgets('検索キーワードで一覧が絞り込まれる', (tester) async {
-    //
-    final initialNotes = [
+    await setTestSurfaceSize(tester);
+
+    final store = InMemoryStore();
+    await _seedInitialNotes(store, [
       Note(title: 'りんごメモ', body: '買うもの：りんご', tag: 'プライベート'),
       Note(title: '会議メモ', body: '議題：週次MTG', tag: '仕事'),
-    ];
+    ]);
 
-    // initialNotes は repo.save → 画面init()でloadされる
-    final provider = await _createProvider(initialNotes: initialNotes);
-
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle();
-
-    // 起動直後：2件見えるはず（最低限タイトルで確認）
-    expect(find.text('りんごメモ'), findsOneWidget);
-    expect(find.text('会議メモ'), findsOneWidget);
-
-    // 検索アイコンをタップ
-    await tester.tap(find.byIcon(Icons.search));
-    await tester.pumpAndSettle();
-
-    // Dialog内のTextFieldへ入力（AlertDialog配下に限定して探すと堅牢）
-    final dialogTextField = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextField),
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
     );
-    expect(dialogTextField, findsOneWidget);
 
-    await tester.enterText(dialogTextField, 'りんご');
-    await tester.pump();
+    await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
-    // 「検索」ボタンを押す
-    await tester.tap(find.text('検索'));
-    await tester.pumpAndSettle();
+    // 起動直後：2件見える
+    await pumpUntilFound(tester, find.text('りんごメモ').hitTestable());
+    await pumpUntilFound(tester, find.text('会議メモ').hitTestable());
 
-    // 絞り込み結果：りんごメモだけ残る
-    expect(find.text('りんごメモ'), findsOneWidget);
+    // 検索「りんご」
+    await _openSearchDialogAndSearch(tester, 'りんご');
+
+    // 絞り込み結果：りんごメモだけ
+    await pumpUntilFound(tester, find.text('りんごメモ').hitTestable());
     expect(find.text('会議メモ'), findsNothing);
   });
 
   // feature/widget-test-tag-and-search
   testWidgets('タグ絞り込み後、検索でさらに絞り込める（AND条件）', (tester) async {
-    // 画面を縦長にして、ListView が全件描画しやすいようにする
+    // 縦長にしてチップ等が出やすいように
     await tester.binding.setSurfaceSize(const Size(800, 2000));
     addTearDown(() async {
-      await tester.binding.setSurfaceSize(null); // 後片付け
+      await tester.binding.setSurfaceSize(null);
     });
 
-    final provider = await _createProvider();
-    await _seedNotes(provider);
+    final store = InMemoryStore();
+    await _seedNotes(store);
 
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
+
+    await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
     // まず全件が見える
-    expect(find.text('仕事メモA'), findsOneWidget);
-    expect(find.text('仕事メモB'), findsOneWidget);
-    expect(find.text('私用メモC'), findsOneWidget);
+    await pumpUntilFound(tester, find.text('仕事メモA').hitTestable());
+    await pumpUntilFound(tester, find.text('仕事メモB').hitTestable());
+    await pumpUntilFound(tester, find.text('私用メモC').hitTestable());
 
     // 1) タグ「仕事」を選択 → 仕事だけになる
-    await tester.tap(find.widgetWithText(ChoiceChip, '仕事'));
-    await tester.pumpAndSettle();
+    final workChip = find.widgetWithText(ChoiceChip, '仕事').hitTestable();
+    await pumpUntilFound(tester, workChip);
+    await tester.tap(workChip);
+    await tester.pump(const Duration(milliseconds: 200));
 
-    expect(find.text('仕事メモA'), findsOneWidget);
-    expect(find.text('仕事メモB'), findsOneWidget);
+    await pumpUntilFound(tester, find.text('仕事メモA').hitTestable());
+    await pumpUntilFound(tester, find.text('仕事メモB').hitTestable());
     expect(find.text('私用メモC'), findsNothing);
 
-    // 2) 検索「B」 → 仕事メモBだけ残る（タグ条件AND検索条件）
+    // 2) 検索「B」 → 仕事メモBだけ
     await _openSearchDialogAndSearch(tester, 'B');
 
     expect(find.text('仕事メモA'), findsNothing);
-    expect(find.text('仕事メモB'), findsOneWidget);
+    await pumpUntilFound(tester, find.text('仕事メモB').hitTestable());
     expect(find.text('私用メモC'), findsNothing);
   });
 }

@@ -1,65 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/repositories/note_repository.dart';
+import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/screens/note_list_screen.dart';
 
 import '../fakes/in_memory_store.dart';
+import '../helpers/test_app.dart';
 
-Widget _buildTestApp({required NoteProvider provider}) {
-  return ChangeNotifierProvider.value(
-    value: provider,
-    child: const MaterialApp(home: NoteListScreen()),
-  );
-}
-
-NoteProvider _createProvider() {
-  final store = InMemoryStore();
+Future<void> _seedOneNote(InMemoryStore store) async {
+  Note.resetCounter();
   final repo = NoteRepository(store);
-  return NoteProvider(repo);
-}
 
-Future<void> _seedOneNote(NoteProvider provider) async {
-  await provider.addNote('初期タイトル', '初期本文', '仕事');
+  final note = Note(title: '初期タイトル', body: '初期本文', tag: '仕事');
+  await repo.save([note]);
 }
 
 void main() {
   testWidgets('詳細→編集→保存で詳細画面の表示が更新される', (tester) async {
-    final provider = _createProvider();
-    await _seedOneNote(provider);
+    await setTestSurfaceSize(tester);
 
-    await tester.pumpWidget(_buildTestApp(provider: provider));
-    await tester.pumpAndSettle(); // init() が走るなら落ち着くまで待つ
+    final store = InMemoryStore();
+    await _seedOneNote(store);
+
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
+
+    // 一覧が出る
+    await pumpUntilFound(tester, find.text('Tagged Notes'));
 
     // 1) 一覧に初期タイトルが見える
-    expect(find.text('初期タイトル'), findsOneWidget);
+    final initialTitle = find.text('初期タイトル').hitTestable();
+    await pumpUntilFound(tester, initialTitle);
 
-    // 2) 一覧アイテムをタップして詳細へ
-    await tester.tap(find.text('初期タイトル'));
-    await tester.pumpAndSettle();
+    // // 2) 一覧アイテムをタップして詳細へ
+    await tester.tap(initialTitle);
+    await tester.pump(); // 遷移開始
+    await tester.pump(const Duration(milliseconds: 600)); // 遷移アニメ完了目安
 
-    // 3) 詳細画面で初期タイトルが見える（DetailのUIに合わせて調整可）
-    expect(find.text('初期タイトル'), findsOneWidget);
+    // 3) 詳細画面を待つ
+    await pumpUntilFound(tester, find.text('メモ詳細').hitTestable());
+    await pumpUntilFound(tester, find.text('初期タイトル').hitTestable());
 
-    // 4) 編集アイコンを押して編集画面へ
-    await tester.tap(find.byIcon(Icons.edit));
-    await tester.pumpAndSettle();
+    // 4) 編集アイコン（AppBar）を hitTestable で押す
+    final editIcon = find.byIcon(Icons.edit).hitTestable();
+    await pumpUntilFound(tester, editIcon);
 
-    // 5) タイトルを更新
-    // NoteEditScreen が labelText 'タイトル' の TextField を持っている前提
-    final titleField = find.widgetWithText(TextField, 'タイトル');
-    expect(titleField, findsOneWidget);
+    await tester.tap(editIcon);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    // 5) 編集画面（型で保証）
+    await pumpUntilFound(tester, find.byType(NoteEditScreen));
+    await pumpUntilFound(tester, find.text('メモを編集').hitTestable());
+
+    // 6) タイトルを更新
+    final titleField = find.widgetWithText(TextField, 'タイトル').hitTestable();
+    await pumpUntilFound(tester, titleField);
 
     await tester.enterText(titleField, '更新後タイトル');
     await tester.pump();
 
-    // 6) 保存
-    await tester.tap(find.byIcon(Icons.save));
-    await tester.pumpAndSettle();
+    // 7) 保存（AppBar）
+    final saveIcon = find.byIcon(Icons.save).hitTestable();
+    await pumpUntilFound(tester, saveIcon);
 
-    // 7) 保存後に詳細へ戻り、表示が更新されている
-    expect(find.text('更新後タイトル'), findsOneWidget);
-    expect(find.text('初期タイトル'), findsNothing);
+    await tester.tap(saveIcon);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600)); // pop完了目安
+
+    // 8) 保存後に詳細へ戻り、表示が更新されている
+    await pumpUntilFound(tester, find.text('メモ詳細').hitTestable());
+
+    // 「更新後タイトル」が見えることを待つ
+    await pumpUntilFound(tester, find.text('更新後タイトル').hitTestable());
+
+    // 「初期タイトル」が “見えていない” ことを保証（ツリー残存を避ける）
+    await pumpUntilGone(tester, find.text('初期タイトル').hitTestable());
+    expect(find.text('初期タイトル').hitTestable(), findsNothing);
   });
 }

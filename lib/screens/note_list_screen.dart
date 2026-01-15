@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:provider/provider.dart';
 import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/presentation/note_notifier.dart';
-// import 'package:tagged_notes/providers/note_provider.dart';
 import 'package:tagged_notes/screens/note_detail_screen.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 import 'package:tagged_notes/widgets/note_list_item.dart';
@@ -26,21 +24,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   // 表示するタグ一覧
   final List<String> _tags = ['すべて', '仕事', 'プライベート', 'その他'];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     if (!mounted) return;
-  //     context.read<NoteProvider>().init();
-  //   });
-
-  //   // Future.microtask(() {
-  //   //   context.read<NoteProvider>().init();
-  //   // });
-  // }
-
-  //
   Future<void> _openSearchDialog() async {
     final controller = TextEditingController(text: _searchQuery);
 
@@ -81,8 +64,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
   @override
   Widget build(BuildContext context) {
     final notesAsync = ref.watch(noteListProvider);
-    // final provider = context.watch<NoteProvider>();
-    // final notes = provider.notes;
 
     return Scaffold(
       appBar: AppBar(
@@ -165,11 +146,12 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                                     ),
                                     TextButton(
                                       onPressed: () async {
+                                        Navigator.pop(context); // 先に閉じる
+
+                                        // ダイアログ閉じたあとに削除（context を使わない）
                                         await ref
                                             .read(noteListProvider.notifier)
                                             .deleteNote(id: note.id);
-                                        // provider.deleteNote(note.id);
-                                        Navigator.pop(context);
                                       },
                                       child: const Text('削除'),
                                     ),
@@ -181,7 +163,6 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                               await ref
                                   .read(noteListProvider.notifier)
                                   .togglePin(id: note.id);
-                              // provider.togglePin(note.id);
                             },
                           );
                         },

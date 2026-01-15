@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tagged_notes/models/note.dart';
-import 'package:tagged_notes/providers/note_provider.dart';
+import 'package:tagged_notes/presentation/note_notifier.dart';
 
-class NoteEditScreen extends StatefulWidget {
+class NoteEditScreen extends ConsumerStatefulWidget {
   final Note? note; // あるときは編集、nullのときは新規
-
   const NoteEditScreen({super.key, this.note});
 
   @override
-  State<NoteEditScreen> createState() => _NoteEditScreenState();
+  ConsumerState<NoteEditScreen> createState() => _NoteEditScreenState();
 }
 
-class _NoteEditScreenState extends State<NoteEditScreen> {
+class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
 
@@ -22,6 +21,9 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   // 編集モードかどうか
   late final bool _isEditing;
 
+  // ★追加：二重保存防止
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +32,6 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     _isEditing = note != null; // noteがあれば編集モード
 
     if (note != null) {
-      //
       _titleController.text = note.title;
       _bodyController.text = note.body;
       _selectedTag = note.tag;
@@ -45,6 +46,8 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
   }
 
   Future<void> _saveNote() async {
+    if (_isSaving) return; // ★連打ガード（念のため）
+
     final title = _titleController.text.trim();
     final body = _bodyController.text.trim();
     final tag = _selectedTag;
@@ -56,22 +59,38 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
       return;
     }
 
-    // Provider から追加処理を呼ぶ
-    final provider = context.read<NoteProvider>();
+    setState(() => _isSaving = true);
 
-    if (_isEditing) {
-      // 既存メモの更新
-      await provider.updateNote(widget.note!.id, title, body, tag);
-    } else {
-      // 新規メモの追加
-      await provider.addNote(title, body, tag);
+    try {
+      final notifier = ref.read(noteListProvider.notifier);
+
+      if (_isEditing) {
+        // 既存メモの更新
+        await notifier.updateNote(
+          id: widget.note!.id,
+          title: title,
+          body: body,
+          tag: tag,
+        );
+      } else {
+        // 新規メモの追加
+        await notifier.addNote(title: title, body: body, tag: tag);
+      }
+
+      // 非同期中に画面が破棄されていたら何もしない
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('保存に失敗しました: $e')));
+      setState(() => _isSaving = false);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
-
-    // 非同期中に画面が破棄されていたら何もしない
-    if (!mounted) return;
-
-    // 一覧画面に戻る
-    Navigator.pop(context);
   }
 
   @override
@@ -81,64 +100,73 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
         title: Text(_isEditing ? 'メモを編集' : '新規メモ'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveNote,
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save),
+            onPressed: _isSaving ? null : _saveNote, // ★disable
             tooltip: '保存',
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // タイトル
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'タイトル',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 本文
-            Expanded(
-              child: TextField(
-                controller: _bodyController,
+      body: AbsorbPointer(
+        absorbing: _isSaving, // ★保存中は操作をまとめて無効化
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // タイトル
+              TextField(
+                controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: '本文',
-                  alignLabelWithHint: true,
+                  labelText: 'タイトル',
                   border: OutlineInputBorder(),
                 ),
-                maxLines: null,
-                expands: true,
-                keyboardType: TextInputType.multiline,
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
-            // タグ選択
-            Row(
-              children: [
-                const Text('タグ'),
-                const SizedBox(width: 8),
-                DropdownButton<String>(
-                  value: _selectedTag,
-                  items: const [
-                    DropdownMenuItem(value: '仕事', child: Text('仕事')),
-                    DropdownMenuItem(value: 'プライベート', child: Text('プライベート')),
-                    DropdownMenuItem(value: 'その他', child: Text('その他')),
-                  ],
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() {
-                      _selectedTag = value;
-                    });
-                  },
+              // 本文
+              Expanded(
+                child: TextField(
+                  controller: _bodyController,
+                  decoration: const InputDecoration(
+                    labelText: '本文',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: null,
+                  expands: true,
+                  keyboardType: TextInputType.multiline,
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 16),
+
+              // タグ選択
+              Row(
+                children: [
+                  const Text('タグ'),
+                  const SizedBox(width: 8),
+                  DropdownButton<String>(
+                    value: _selectedTag,
+                    items: const [
+                      DropdownMenuItem(value: '仕事', child: Text('仕事')),
+                      DropdownMenuItem(value: 'プライベート', child: Text('プライベート')),
+                      DropdownMenuItem(value: 'その他', child: Text('その他')),
+                    ],
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() {
+                        _selectedTag = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
