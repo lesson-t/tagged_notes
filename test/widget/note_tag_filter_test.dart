@@ -8,7 +8,6 @@ import 'package:tagged_notes/screens/note_list_screen.dart';
 import '../fakes/in_memory_store.dart';
 import '../helpers/test_app.dart';
 
-
 Future<void> _seedNotes(InMemoryStore store) async {
   Note.resetCounter();
   final repo = NoteRepository(store);
@@ -42,10 +41,9 @@ void main() {
     final store = InMemoryStore();
     await _seedNotes(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
@@ -68,10 +66,9 @@ void main() {
     final store = InMemoryStore();
     await _seedNotes(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 

@@ -20,14 +20,20 @@ Future<void> _seedNotes(InMemoryStore store) async {
   await repo.save(notes);
 }
 
-Future<void> _seedInitialNotes(InMemoryStore store, List<Note> initialNotes) async {
+Future<void> _seedInitialNotes(
+  InMemoryStore store,
+  List<Note> initialNotes,
+) async {
   Note.resetCounter();
   final repo = NoteRepository(store);
   await repo.save(initialNotes);
 }
 
 /// 検索ダイアログを開いて検索実行（ダイアログ配下に限定して操作する）
-Future<void> _openSearchDialogAndSearch(WidgetTester tester, String query) async {
+Future<void> _openSearchDialogAndSearch(
+  WidgetTester tester,
+  String query,
+) async {
   // 検索アイコンを「押せるもの」に限定
   final searchIcon = find.byIcon(Icons.search).hitTestable();
   await pumpUntilFound(tester, searchIcon);
@@ -42,10 +48,9 @@ Future<void> _openSearchDialogAndSearch(WidgetTester tester, String query) async
   await tester.enterText(tf, query);
   await tester.pump();
 
-  final searchBtn = find.descendant(
-    of: dialog,
-    matching: find.widgetWithText(TextButton, '検索'),
-  ).hitTestable();
+  final searchBtn = find
+      .descendant(of: dialog, matching: find.widgetWithText(TextButton, '検索'))
+      .hitTestable();
 
   await pumpUntilFound(tester, searchBtn);
   await tester.tap(searchBtn);
@@ -61,12 +66,13 @@ void main() {
 
     final store = InMemoryStore();
     // ダイアログ表示だけなら seed 不要だが、画面が安定するよう最低限 1件入れてもOK
-    await _seedInitialNotes(store, [Note(title: 'メモA', body: '本文A', tag: '仕事')]);
+    await _seedInitialNotes(store, [
+      Note(title: 'メモA', body: '本文A', tag: '仕事'),
+    ]);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
@@ -92,10 +98,9 @@ void main() {
       Note(title: '会議メモ', body: '議題：週次MTG', tag: '仕事'),
     ]);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
@@ -122,10 +127,9 @@ void main() {
     final store = InMemoryStore();
     await _seedNotes(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 

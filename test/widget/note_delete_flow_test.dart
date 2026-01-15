@@ -53,10 +53,9 @@ void main() {
     final store = InMemoryStore();
     await _seedOneNote(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes'));
 
@@ -69,10 +68,9 @@ void main() {
     final store = InMemoryStore();
     await _seedOneNote(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes'));
 
@@ -94,10 +92,9 @@ void main() {
     final store = InMemoryStore();
     await _seedOneNote(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes'));
     await _openDeleteDialog(tester);
@@ -115,6 +112,9 @@ void main() {
     expect(find.text('削除対象メモ').hitTestable(), findsNothing);
 
     // 空状態が出ること（これも状態反映の完了条件として有効）
-    await pumpUntilFound(tester, find.textContaining('まだメモがありません').hitTestable());
+    await pumpUntilFound(
+      tester,
+      find.textContaining('まだメモがありません').hitTestable(),
+    );
   });
 }

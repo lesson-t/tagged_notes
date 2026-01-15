@@ -146,10 +146,12 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
                                     ),
                                     TextButton(
                                       onPressed: () async {
+                                        Navigator.pop(context); // 先に閉じる
+
+                                        // ダイアログ閉じたあとに削除（context を使わない）
                                         await ref
                                             .read(noteListProvider.notifier)
                                             .deleteNote(id: note.id);
-                                        Navigator.pop(context);
                                       },
                                       child: const Text('削除'),
                                     ),

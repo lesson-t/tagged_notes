@@ -72,10 +72,9 @@ void main() {
     final store = InMemoryStore();
     final idA = await _seedOneNote(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     await pumpUntilFound(tester, find.text('Tagged Notes').hitTestable());
 
@@ -106,10 +105,9 @@ void main() {
     final store = InMemoryStore();
     final ids = await _seedTwoNotes(store); // 追加順：A -> B
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     // 一覧が出る
     await pumpUntilFound(tester, find.text('Tagged Notes'));

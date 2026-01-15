@@ -28,16 +28,21 @@ Future<void> openSearchAndSearch(WidgetTester tester, String query) async {
   await pumpUntilFound(tester, dialog);
 
   // ダイアログ内TextFieldへ入力
-  final tf = find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField));
+  final tf = find.descendant(
+    of: find.byType(AlertDialog),
+    matching: find.byType(TextField),
+  );
   await pumpUntilFound(tester, tf);
   await tester.enterText(tf, query);
   await tester.pump(); // 入力反映
 
   // 「検索」ボタンを押す（押せるものだけ）
-  final submit = find.descendant(
-    of: find.byType(AlertDialog),
-    matching: find.widgetWithText(TextButton, '検索'),
-  ).hitTestable();
+  final submit = find
+      .descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(TextButton, '検索'),
+      )
+      .hitTestable();
 
   await pumpUntilFound(tester, submit);
   await tester.tap(submit);
@@ -53,10 +58,9 @@ void main() {
     await _seedOneNote(store);
 
     // 2) ProviderScope を store で上書きして起動
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     // 3) 一覧表示を待つ（まず seeded note が見えることを確認）
     await pumpUntilFound(tester, find.text('Tagged Notes'));

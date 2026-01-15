@@ -5,10 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tagged_notes/di/providers.dart';
 import '../fakes/in_memory_store.dart';
 
-Widget buildTestApp({
-  required Widget home,
-  InMemoryStore? storeOverride,
-}) {
+Widget buildTestApp({required Widget home, InMemoryStore? storeOverride}) {
   final store = storeOverride ?? InMemoryStore();
 
   return ProviderScope(
@@ -57,8 +54,8 @@ Future<void> setTestSurfaceSize(
 Future<void> tapBarActionByIcon(
   WidgetTester tester,
   IconData icon, {
-    int settlePumps = 12,
-    Duration step = const Duration(milliseconds: 50),
+  int settlePumps = 12,
+  Duration step = const Duration(milliseconds: 50),
 }) async {
   final finder = find.byIcon(icon).hitTestable();
   // 出るまで待つ

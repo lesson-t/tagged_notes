@@ -24,12 +24,11 @@ void main() {
     // 1) store を用意して seed
     final store = InMemoryStore();
     await _seedOneNote(store);
-    
+
     // 2) ProviderScope を InMemoryStore で上書きしてアプリを起動
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-      ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
     await pumpUntilFound(tester, find.text('Tagged Notes'));
 
     // 3) 一覧に seeded note が出ている
@@ -77,7 +76,7 @@ void main() {
 
     // 8) 詳細に戻ったことを保証
     await pumpUntilFound(tester, find.text('メモ詳細').hitTestable());
-    
+
     // 編集画面が“見えていない”こと（ツリー上に残っていても良い）
     expect(find.text('メモを編集').hitTestable(), findsNothing);
 

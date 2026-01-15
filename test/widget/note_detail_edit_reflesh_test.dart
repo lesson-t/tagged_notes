@@ -23,10 +23,9 @@ void main() {
     final store = InMemoryStore();
     await _seedOneNote(store);
 
-    await tester.pumpWidget(buildTestApp(
-      home: const NoteListScreen(),
-      storeOverride: store,
-    ));
+    await tester.pumpWidget(
+      buildTestApp(home: const NoteListScreen(), storeOverride: store),
+    );
 
     // 一覧が出る
     await pumpUntilFound(tester, find.text('Tagged Notes'));
