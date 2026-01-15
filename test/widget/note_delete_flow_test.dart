@@ -8,23 +8,6 @@ import 'package:tagged_notes/screens/note_list_screen.dart';
 import '../fakes/in_memory_store.dart';
 import '../helpers/test_app.dart';
 
-// Widget _buildTestApp({required NoteProvider provider}) {
-//   return ChangeNotifierProvider.value(
-//     value: provider,
-//     child: const MaterialApp(home: NoteListScreen()),
-//   );
-// }
-
-// NoteProvider _createProvider() {
-//   final store = InMemoryStore();
-//   final repo = NoteRepository(store);
-//   return NoteProvider(repo);
-// }
-
-// Future<void> _seedOneNote(NoteProvider provider) async {
-//   await provider.addNote('削除対象メモ', '本文', '仕事');
-// }
-
 Future<void> _seedOneNote(InMemoryStore store) async {
   Note.resetCounter();
   final repo = NoteRepository(store);
@@ -32,16 +15,6 @@ Future<void> _seedOneNote(InMemoryStore store) async {
   final note = Note(title: '削除対象メモ', body: '本文', tag: '仕事');
   await repo.save([note]);
 }
-
-// Future<void> _openDeleteDialog(WidgetTester tester) async {
-//   // ListTile を長押し（タイトルのTextを長押しでもOK）
-//   await tester.longPress(find.text('削除対象メモ'));
-//   await tester.pumpAndSettle();
-
-//   // ダイアログが開いていることを確認
-//   expect(find.byType(AlertDialog), findsOneWidget);
-//   expect(find.text('削除しますか？'), findsOneWidget);
-// }
 
 Future<void> _openDeleteDialog(WidgetTester tester) async {
   // 一覧に対象が出ていることを保証
