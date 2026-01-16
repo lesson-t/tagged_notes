@@ -68,11 +68,14 @@ class NoteDetailScreen extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.edit),
                 tooltip: '編集',
-                onPressed: () {
+                onPressed: () async {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => NoteEditScreen(note: n)),
                   );
+
+                  if (!context.mounted) return;
+                  await ref.read(noteListProvider.notifier).refresh();
                 },
               ),
             ],
