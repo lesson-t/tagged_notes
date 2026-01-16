@@ -53,7 +53,7 @@ class NoteDetailScreen extends ConsumerWidget {
 
       data: (notes) {
         final Note? n = notes.cast<Note?>().firstWhere(
-          (x) => x!.id ==noteId,
+          (x) => x!.id == noteId,
           orElse: () => null,
         );
 
