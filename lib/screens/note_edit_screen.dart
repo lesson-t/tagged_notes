@@ -82,7 +82,9 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('保存に失敗しました: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('保存に失敗しました: $e')));
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
