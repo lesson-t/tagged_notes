@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/presentation/note_notifier.dart';
 import 'package:tagged_notes/screens/note_edit_screen.dart';
 
@@ -49,16 +50,20 @@ class NoteDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+
       data: (notes) {
-        final note = notes.where((n) => n.id == noteId).toList();
-        if (note.isEmpty) {
+        final Note? n = notes.cast<Note?>().firstWhere(
+          (x) => x!.id ==noteId,
+          orElse: () => null,
+        );
+
+        if (n == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('メモ詳細')),
             body: const Center(child: Text('メモが見つかりませんでした。')),
           );
         }
 
-        final n = note.first;
         final createdAtText = _formatDate(n.createdAt);
 
         return Scaffold(
