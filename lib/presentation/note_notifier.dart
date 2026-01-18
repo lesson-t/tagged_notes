@@ -4,8 +4,9 @@ import 'package:tagged_notes/models/note.dart';
 import 'package:tagged_notes/presentation/note_list_state.dart';
 
 /// UI からはこの provider だけを見る（Repository/UseCase を直接触らない）
-final noteListProvider = 
-  AsyncNotifierProvider<NoteListNotifier, NoteListState>(NoteListNotifier.new,);
+final noteListProvider = AsyncNotifierProvider<NoteListNotifier, NoteListState>(
+  NoteListNotifier.new,
+);
 
 class NoteListNotifier extends AsyncNotifier<NoteListState> {
   bool _busy = false;
@@ -88,7 +89,7 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
 
     // 現在の data が取れる場合、busy=true にして UI を disable できる
     final current = state.asData?.value;
-    if ( current != null) {
+    if (current != null) {
       state = AsyncData(current.copyWith(busy: true));
     }
 

@@ -127,52 +127,55 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
                           return NoteListItem(
                             note: note,
-                            onTap: isBusy 
-                              ? null 
-                              : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        NoteDetailScreen(noteId: note.id),
-                                  ),
-                                );
-                              },
-                            onLongPress: isBusy 
-                              ? null 
-                              : () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text('削除しますか？'),
-                                    content: Text(note.title),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('キャンセル'),
+                            onTap: isBusy
+                                ? null
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            NoteDetailScreen(noteId: note.id),
                                       ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.pop(context); // 先に閉じる
+                                    );
+                                  },
+                            onLongPress: isBusy
+                                ? null
+                                : () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text('削除しますか？'),
+                                        content: Text(note.title),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text('キャンセル'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              Navigator.pop(context); // 先に閉じる
 
-                                          // ダイアログ閉じたあとに削除（context を使わない）
-                                          await ref
-                                              .read(noteListProvider.notifier)
-                                              .deleteNote(id: note.id);
-                                        },
-                                        child: const Text('削除'),
+                                              // ダイアログ閉じたあとに削除（context を使わない）
+                                              await ref
+                                                  .read(
+                                                    noteListProvider.notifier,
+                                                  )
+                                                  .deleteNote(id: note.id);
+                                            },
+                                            child: const Text('削除'),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            onTogglePin: isBusy 
-                              ? null 
-                              : () async {
-                                await ref
-                                    .read(noteListProvider.notifier)
-                                    .togglePin(id: note.id);
-                              },
+                                    );
+                                  },
+                            onTogglePin: isBusy
+                                ? null
+                                : () async {
+                                    await ref
+                                        .read(noteListProvider.notifier)
+                                        .togglePin(id: note.id);
+                                  },
                           );
                         },
                       ),
@@ -184,20 +187,18 @@ class _NoteListScreenState extends ConsumerState<NoteListScreen> {
 
       floatingActionButton: notesAsync.maybeWhen(
         data: (s) => FloatingActionButton(
-          onPressed: s.busy 
-            ? null 
-            : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const NoteEditScreen()),
-              );
-            },
+          onPressed: s.busy
+              ? null
+              : () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const NoteEditScreen()),
+                  );
+                },
           child: const Icon(Icons.add),
         ),
-        orElse: () => FloatingActionButton(
-          onPressed: null,
-          child: const Icon(Icons.add),
-        ),
+        orElse: () =>
+            FloatingActionButton(onPressed: null, child: const Icon(Icons.add)),
       ),
     );
   }
