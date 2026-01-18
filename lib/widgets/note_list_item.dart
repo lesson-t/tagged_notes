@@ -4,16 +4,16 @@ import 'package:tagged_notes/models/note.dart';
 
 class NoteListItem extends StatelessWidget {
   final Note note;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-  final VoidCallback onTogglePin;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onTogglePin;
 
   const NoteListItem({
     super.key,
     required this.note,
-    required this.onTap,
-    required this.onLongPress,
-    required this.onTogglePin,
+    this.onTap,
+    this.onLongPress,
+    this.onTogglePin,
   });
 
   String _formatDate(DateTime dateTime) {
