@@ -75,7 +75,14 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
   }) async {
     await _runMutation(() async {
       final update = ref.read(updateNoteUsecaseProvider);
-      final notes = update.execute(id: id, title: title, body: body, tag: tag);
+
+      final notes = await update.execute(
+        id: id,
+        title: title,
+        body: body,
+        tag: tag,
+      );
+
       return notes;
     });
   }
