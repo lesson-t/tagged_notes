@@ -9,8 +9,8 @@ final noteListProvider = AsyncNotifierProvider<NoteListNotifier, NoteListState>(
 );
 
 class NoteListNotifier extends AsyncNotifier<NoteListState> {
-  bool _busy = false;
-  bool get busy => _busy;
+  // bool _busy = false;
+  bool get _isBusy => state.asData?.value.busy ?? false;
 
   @override
   Future<NoteListState> build() async {
@@ -20,23 +20,10 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
   }
 
   Future<void> refresh() async {
-    if (_busy) return;
-    _busy = true;
-
-    final previous = state;
-
-    // 画面側が「loading」を出したいなら AsyncLoading を使うのは refresh のみでOK
-    state = const AsyncLoading();
-
-    try {
+    await _runMutation(() async {
       final load = ref.read(loadNoteUsecaseProvider);
-      final notes = await load.execute();
-      state = AsyncData(NoteListState(notes: notes, busy: false));
-    } catch (e) {
-      state = previous; // UX安定：前状態へ戻す
-    } finally {
-      _busy = false;
-    }
+      return await load.execute();
+    });
   }
 
   Future<void> addNote({
@@ -89,13 +76,12 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
 
   /// busy を state に反映し、UIが購読できるようにする。
   Future<void> _runMutation(Future<List<Note>> Function() action) async {
-    if (_busy) return;
-    _busy = true;
+    if (_isBusy) return;
 
     final previous = state;
+    final current = previous.asData?.value;
 
-    // 現在の data が取れる場合、busy=true にして UI を disable できる
-    final current = state.asData?.value;
+    // data があるなら busy=true で UI を止める（表示は保持）
     if (current != null) {
       state = AsyncData(current.copyWith(busy: true));
     }
@@ -104,10 +90,18 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
       final notes = await action();
       state = AsyncData(NoteListState(notes: notes, busy: false));
     } catch (e) {
-      // 失敗時は元に戻す（busyも戻る）
-      state = previous;
+      state = previous; // 失敗時は元に戻す（busyも戻る）
+
+      // previous が data の場合は busy=false を強制（安全弁）
+      final prevData = previous.asData?.value;
+      if (prevData != null && prevData.busy) {
+        state = AsyncData(prevData.copyWith(busy: false));
+      }
     } finally {
-      _busy = false;
+      final v = state.asData?.value;
+      if (v != null && v.busy) {
+        state = AsyncData(v.copyWith(busy: false));
+      }
     }
   }
 }
