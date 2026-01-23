@@ -89,15 +89,11 @@ class NoteListNotifier extends AsyncNotifier<NoteListState> {
     try {
       final notes = await action();
       state = AsyncData(NoteListState(notes: notes, busy: false));
-    } catch (e) {
-      state = previous; // 失敗時は元に戻す（busyも戻る）
-
-      // previous が data の場合は busy=false を強制（安全弁）
-      final prevData = previous.asData?.value;
-      if (prevData != null && prevData.busy) {
-        state = AsyncData(prevData.copyWith(busy: false));
-      }
+    } catch (_) {
+      // 失敗時は元に戻す（busy解除は finally が最終責務）
+      state = previous;
     } finally {
+      // data のときだけ busy を必ず解除する
       final v = state.asData?.value;
       if (v != null && v.busy) {
         state = AsyncData(v.copyWith(busy: false));
